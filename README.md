@@ -6,8 +6,9 @@ Un sistema completo para consultar, gestionar y verificar números telefónicos 
 
 - 🔍 **Búsqueda Rápida** - Identifica el operador de cualquier número español (34XXXXXXXXX)
 - 🔐 **Autenticación JWT** - Panel admin seguro con tokens de 24 horas
-- 📊 **Estadísticas Detalladas** - Análisis de búsquedas por operador, tiempos de respuesta
-- 📞 **Gestión de Portabilidades** - Actualiza operadores cuando hay cambios de proveedor
+- 📊 **Estadísticas Públicas** - Todos los usuarios ven análisis en tiempo real sin login
+- 📞 **Reportar Portabilidades** - Usuarios pueden reportar cambios de operador directamente
+- 💾 **Gestión de Portabilidades** - Actualiza operadores cuando hay cambios de proveedor
 - 🚫 **Detección de Spam** - Reporta y gestiona números de spam/fraude
 - 📤 **Importar CSV** - Carga masiva de números desde archivo
 - ➕ **Agregar Números** - Gestión individual de números y rangos
@@ -68,6 +69,20 @@ El servidor estará disponible en: **http://localhost:3000**
    - Tipo de línea (móvil, fija, etc.)
    - Información de portabilidad
    - Estado spam
+
+#### 📊 Estadísticas Públicas
+- Visualiza en tiempo real sin necesidad de login
+- Total de búsquedas realizadas
+- Búsquedas exitosas
+- Cantidad de operadores disponibles
+- Tiempo promedio de respuesta
+- Top 6 operadores más buscados con porcentajes
+
+#### 🔄 Reportar Cambio de Operador
+- Reporta cambios de portabilidad directamente
+- Campos: número telefónico, operador anterior, nuevo operador
+- Se registra automáticamente en la base de datos
+- Las estadísticas se actualizan en tiempo real
 
 ### 🔐 Panel de Administración
 
@@ -144,6 +159,27 @@ GET /api/porting/:number
 # Verificar si es spam
 GET /api/spam-check/:number
 
+# Estadísticas públicas (real-time)
+GET /api/public/stats
+Response: {
+  "total_searches": 1234,
+  "successful_searches": 1100,
+  "operator_count": 5,
+  "average_response_time": 45.2,
+  "top_operators": [
+    {"operator_found": "Movistar", "search_count": 450},
+    {"operator_found": "Vodafone", "search_count": 380}
+  ]
+}
+
+# Reportar cambio de portabilidad (público)
+POST /api/public/porting/report
+Body: {
+  "phoneNumber": "34600123456",
+  "currentOperator": "Movistar",
+  "newOperator": "Vodafone"
+}
+
 # Health check
 GET /api/health
 ```
@@ -155,7 +191,10 @@ GET /api/health
 POST /api/admin/login
 Body: { "password": "admin123" }
 
-# Estadísticas
+# Verificar token
+GET /api/admin/verify
+
+# Estadísticas (admin - con más detalles)
 GET /api/admin/stats
 
 # Portabilidades
@@ -180,9 +219,6 @@ PATCH /api/admin/keys/:id/toggle
 
 # Logs
 GET /api/admin/logs
-
-# Verificar token
-GET /api/admin/verify
 ```
 
 ## 📁 Estructura del Proyecto
@@ -307,4 +343,13 @@ Este proyecto es privado. Todos los derechos reservados.
 ---
 
 **Última actualización:** Enero 2026
-**Versión:** 1.0.0
+**Versión:** 2.0.0
+
+### 🆕 Cambios en v2.0.0
+- ✨ Endpoint público de estadísticas `/api/public/stats` 
+- ✨ Endpoint público para reportar portabilidades `/api/public/porting/report`
+- 📊 Estadísticas en tiempo real en página principal sin requerir login
+- 🔄 Usuarios pueden reportar cambios de operador directamente desde index.html
+- 🔧 Corrección en nombres de campos de base de datos
+- 📱 Mejor experiencia UX para usuarios sin permisos admin
+- 🔐 Endpoints públicos con validación de entrada para seguridad
