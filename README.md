@@ -27,7 +27,7 @@ Un sistema completo para consultar, gestionar y verificar números telefónicos 
 
 1. **Clonar o descargar el proyecto**
 ```bash
-cd "c:\Users\W10\Documents\Consultastelefonía"
+cd tu_ruta_del_proyecto
 ```
 
 2. **Instalar dependencias**
@@ -42,14 +42,15 @@ mysql -u root -p < schema.sql
 
 4. **Configurar variables de entorno** (crear archivo `.env`)
 ```
-ADMIN_PASSWORD=admin123
-JWT_SECRET=tu_clave_secreta_super_segura_2026
+ADMIN_PASSWORD=tu_contraseña_segura
+JWT_SECRET=tu_clave_secreta_aleatoria_fuerte
 DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=tu_contraseña
+DB_USER=tu_usuario_db
+DB_PASSWORD=tu_contraseña_db
 DB_NAME=telco_lookup
 PORT=3000
 ```
+⚠️ **Importante:** Usa contraseñas fuertes y únicas. Nunca compartas el archivo `.env`.
 
 5. **Iniciar el servidor**
 ```bash
@@ -88,7 +89,7 @@ El servidor estará disponible en: **http://localhost:3000**
 
 #### Acceso
 1. Haz clic en "Acceso Admin" en la página principal
-2. Ingresa la contraseña (por defecto: `admin123`)
+2. Ingresa tu contraseña de administrador (configurable en `.env`)
 3. Se abrirá el dashboard
 
 #### Pestañas Disponibles
@@ -189,7 +190,7 @@ GET /api/health
 ```bash
 # Login (generar token)
 POST /api/admin/login
-Body: { "password": "admin123" }
+Body: { "password": "tu_contraseña_admin" }
 
 # Verificar token
 GET /api/admin/verify
@@ -262,10 +263,13 @@ Consultastelefonía/
 - ✅ Variables de entorno para credenciales
 
 ⚠️ **Para producción:**
-- Cambiar `ADMIN_PASSWORD` y `JWT_SECRET` en `.env`
+- Usar contraseñas largas y complejas (mínimo 16 caracteres)
 - Usar HTTPS en lugar de HTTP
 - Instalar Tailwind CSS localmente (no usar CDN)
-- Configurar variables de entorno seguras
+- Nunca expongas archivos `.env` en repositorios públicos
+- Usa secrets management para credenciales en CI/CD
+- Mantén las dependencias actualizadas
+- Configura firewall para restringir acceso a MySQL
 
 ## 📦 Dependencias
 
@@ -289,7 +293,7 @@ npm run import         # Importa datos desde CSV
 
 ### Ejemplo 1: Buscar un número
 ```javascript
-fetch('http://localhost:3000/api/lookup/34600123456')
+fetch('http://localhost:3000/api/lookup/34XXXXXXXXX')
   .then(r => r.json())
   .then(data => console.log(data));
 ```
@@ -304,7 +308,7 @@ fetch('http://localhost:3000/api/admin/numbers/add', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    phone_number: '34600000000',
+    phone_number: '34XXXXXXXXX',
     operator_name: 'Movistar',
     type: 'MOBILE'
   })
