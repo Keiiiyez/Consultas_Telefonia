@@ -1,8 +1,8 @@
 const axios = require('axios');
-const db = require('../config/db'); // conexión a MySQL/PostgreSQL
+const db = require('../config/db');
 
 async function getOperatorReliable(phoneNumber) {
-    // 1. INTENTO EN BASE DE DATOS LOCAL 
+    // 1. INTENTO EN BASE DE DATOS LOCAL (Gratis)
     try {
         const [rows] = await db.query(
             "SELECT operator_name, nrn FROM operators_cache WHERE phone_number = ?", 
@@ -13,44 +13,45 @@ async function getOperatorReliable(phoneNumber) {
             return {
                 current_operator: rows[0].operator_name,
                 nrn: rows[0].nrn,
-                source: "Local DB (CNMC/AOPM)",
+                source: "Base de Datos Local (Interna)",
                 success: true
             };
         }
     } catch (dbError) {
-        console.error("Fallo en DB Local, saltando a API...", dbError.message);
+        console.error("Fallo en DB Local:", dbError.message);
     }
 
-    // 2. RESPALDO: CONSULTA A API EXTERNA 
-    try {
-        // Ejemplo con una API tipo LabsMobile o Twilio
-        const apiResponse = await axios.get(`https://api.provider.com/v1/lookup`, {
-            params: { 
-                number: phoneNumber,
-                key: process.env.API_KEY 
-            }
-        });
+    // 2. RESPALDO: CONSULTA A API EXTERNA (Solo si no está en DB)
+    // Nota: Necesitas una API KEY real para que esto funcione
+    if (process.env.API_KEY) {
+        try {
+            const apiResponse = await axios.get(`https://api.provider.com/v1/lookup`, {
+                params: { 
+                    number: phoneNumber,
+                    key: process.env.API_KEY 
+                }
+            });
 
-        const operatorData = {
-            current_operator: apiResponse.data.carrier_name,
-            nrn: apiResponse.data.nrn,
-            source: "External API (HLR Realtime)",
-            success: true
-        };
+            const operatorData = {
+                current_operator: apiResponse.data.carrier_name,
+                nrn: apiResponse.data.nrn,
+                source: "API Externa (HLR Realtime)",
+                success: true
+            };
 
-        // 3. AUTO-REPARACIÓN: Guardamos en nuestra DB para la próxima vez
-        // Así el sistema "aprende" y la próxima vez será gratis
-        await db.query(
-            "INSERT IGNORE INTO operators_cache (phone_number, operator_name, nrn) VALUES (?, ?, ?)",
-            [phoneNumber, operatorData.current_operator, operatorData.nrn]
-        );
+            // Guardamos en DB para ahorrar costes la próxima vez
+            await db.query(
+                "INSERT IGNORE INTO operators_cache (phone_number, operator_name, nrn) VALUES (?, ?, ?)",
+                [phoneNumber, operatorData.current_operator, operatorData.nrn]
+            );
 
-        return operatorData;
-
-    } catch (apiError) {
-        console.error("Fallo total: Ni DB ni API responden.");
-        return { success: false, error: "Servicio no disponible" };
+            return operatorData;
+        } catch (apiError) {
+            console.error("Fallo en API externa.");
+        }
     }
+
+    return { success: false, error: "Número no encontrado en registros locales ni API configurada." };
 }
 
 module.exports = { getOperatorReliable };

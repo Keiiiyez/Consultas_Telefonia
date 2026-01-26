@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Telco Lookup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-item.active { @apply bg-blue-600 border-blue-600; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white">
+
+<div class="flex h-screen">
+    
+    <!-- Sidebar -->
+    <div class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
+        
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
+                    <i class="fa-solid fa-gauge text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold">Admin</h2>
+                    <p class="text-xs text-slate-400">Panel Control</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="showTab('stats')" class="nav-item active w-full text-left p-3 rounded-lg bg-blue-600 border border-blue-600 hover:bg-blue-700 transition">
+                <i class="fa-solid fa-chart-line mr-2"></i><span>Estadísticas</span>
+            </button>
+            <button onclick="showTab('portings')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-arrows-rotate mr-2"></i><span>Portabilidades</span>
+            </button>
+            <button onclick="showTab('numbers')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-phone mr-2"></i><span>Gestionar Números</span>
+            </button>
+            <button onclick="showTab('spam')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-shield-exclamation mr-2"></i><span>Spam/Fraude</span>
+            </button>
+            <button onclick="showTab('keys')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-key mr-2"></i><span>API Keys</span>
+            </button>
+            <button onclick="showTab('logs')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-file-lines mr-2"></i><span>Logs</span>
+            </button>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-800 space-y-2">
+            <button onclick="location.href='/'" class="w-full p-2 text-sm text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-home mr-2"></i>Ir a Inicio
+            </button>
+            <button onclick="logout()" class="w-full p-2 text-sm text-red-400 hover:text-red-300 transition">
+                <i class="fa-solid fa-sign-out-alt mr-2"></i>Cerrar Sesión
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        
+        <!-- Top Bar -->
+        <div class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-40 px-8 py-4">
+            <div class="flex justify-between items-center">
+                <h1 id="pageTitle" class="text-2xl font-bold">Estadísticas Generales</h1>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-slate-400" id="userInfo">Admin</span>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-user text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            
+            <!-- Stats Tab -->
+            <div id="stats-tab" class="tab-content active">
+                <div class="mb-4 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold">📊 Estadísticas</h2>
+                    <button onclick="loadStats()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition">
+                        <i class="fa-solid fa-rotate-right mr-2"></i>Actualizar
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mb-8">
+                    <div class="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700 rounded-lg p-6 hover:border-blue-500 transition">
+                        <p class="text-blue-300 text-sm mb-2">📊 Búsquedas Totales</p>
+                        <p class="text-4xl font-bold text-blue-300" id="total-searches">0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700 rounded-lg p-6 hover:border-green-500 transition">
+                        <p class="text-green-300 text-sm mb-2">✅ Exitosas</p>
+                        <p class="text-4xl font-bold text-green-400" id="successful">0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700 rounded-lg p-6 hover:border-red-500 transition">
+                        <p class="text-red-300 text-sm mb-2">❌ Fallidas</p>
+                        <p class="text-4xl font-bold text-red-400" id="failed">0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700 rounded-lg p-6 hover:border-yellow-500 transition">
+                        <p class="text-yellow-300 text-sm mb-2">⚡ Tiempo Promedio</p>
+                        <p class="text-4xl font-bold text-yellow-300" id="avg-time">0ms</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-6">Búsquedas por Operador</h3>
+                        <canvas id="operatorChart" height="100"></canvas>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-6">Top 10 Números Más Buscados</h3>
+                        <div id="top-numbers" class="space-y-2 max-h-96 overflow-y-auto">
+                            <p class="text-slate-400 text-center py-8">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portings Tab -->
+            <div id="portings-tab" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Formulario de Reportar -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                            <h3 class="text-lg font-bold mb-6">📝 Reportar Cambio de Operador</h3>
+                            
+                            <div class="space-y-4">
+                                <!-- Número -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Número Telefónico</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">+34</span>
+                                        <input type="text" id="porting-number" placeholder="600000000" 
+                                               class="w-full pl-12 pr-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Operador Anterior -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Operador Anterior</label>
+                                    <select id="porting-from" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="">Selecciona operador...</option>
+                                        <option value="Movistar">Movistar</option>
+                                        <option value="Vodafone">Vodafone</option>
+                                        <option value="Orange">Orange</option>
+                                        <option value="Yoigo">Yoigo</option>
+                                        <option value="MVNO">MVNO</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+
+                                <!-- Operador Nuevo -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Operador Nuevo</label>
+                                    <select id="porting-to" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="">Selecciona operador...</option>
+                                        <option value="Movistar">Movistar</option>
+                                        <option value="Vodafone">Vodafone</option>
+                                        <option value="Orange">Orange</option>
+                                        <option value="Yoigo">Yoigo</option>
+                                        <option value="MVNO">MVNO</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+
+                                <!-- Botón -->
+                                <button onclick="reportPorting()" class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg font-semibold transition">
+                                    <i class="fa-solid fa-arrows-rotate mr-2"></i>Reportar Portabilidad
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h4 class="font-bold mb-4">ℹ️ ¿Qué es portabilidad?</h4>
+                        <p class="text-sm text-slate-400 mb-4">
+                            La portabilidad numérica permite que un usuario mantenga su número al cambiar de operador telefónico.
+                        </p>
+                        <div class="bg-blue-900/30 border border-blue-700 rounded p-3 text-xs text-blue-300">
+                            <p class="font-semibold mb-2">Ejemplo:</p>
+                            <p>• Número: 34600123456</p>
+                            <p>• Antes: Movistar</p>
+                            <p>• Ahora: Vodafone</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Portabilidades -->
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="text-lg font-bold">Portabilidades Registradas</h3>
+                        <button onclick="loadPortings()" class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded transition">
+                            <i class="fa-solid fa-rotate-right"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">Número</th>
+                                    <th class="px-6 py-4 text-left">De</th>
+                                    <th class="px-6 py-4 text-left">A</th>
+                                    <th class="px-6 py-4 text-left">Fecha</th>
+                                    <th class="px-6 py-4 text-left">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portings-list">
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Cargando portabilidades...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Numbers Tab -->
+            <div id="numbers-tab" class="tab-content">
+                <!-- Subir CSV -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4">📤 Importar CSV</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Selecciona archivo CSV</label>
+                                <input type="file" id="csv-file" accept=".csv" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-slate-300 file:bg-blue-600 file:border-0 file:px-3 file:py-2 file:rounded file:mr-3 file:text-white file:cursor-pointer hover:file:bg-blue-700">
+                            </div>
+                            <div class="bg-slate-900/50 border border-slate-600 rounded p-4 text-xs text-slate-400">
+                                <p class="font-semibold mb-2">Formato esperado:</p>
+                                <p>phone_number,operator_name,nrn,type</p>
+                                <p class="text-slate-500 mt-2">Ejemplo:</p>
+                                <p class="font-mono">34600000000,Movistar,214,MOBILE</p>
+                                <p class="font-mono">34700000000,Vodafone,222,MOBILE</p>
+                            </div>
+                            <button onclick="importCSV()" class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-semibold transition">
+                                <i class="fa-solid fa-upload mr-2"></i>Importar CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4">➕ Agregar Número Individual</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Número (34XXXXXXXXX)</label>
+                                <input type="text" id="new-number" placeholder="34600123456" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Operador</label>
+                                <select id="new-operator" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Selecciona...</option>
+                                    <option value="Movistar">Movistar</option>
+                                    <option value="Vodafone">Vodafone</option>
+                                    <option value="Orange">Orange</option>
+                                    <option value="Yoigo">Yoigo</option>
+                                    <option value="MVNO">MVNO</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Tipo (opcional)</label>
+                                <select id="new-type" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="MOBILE">MOBILE</option>
+                                    <option value="FIXED">FIXED</option>
+                                    <option value="PREMIUM">PREMIUM</option>
+                                </select>
+                            </div>
+                            <button onclick="addSingleNumber()" class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold transition">
+                                <i class="fa-solid fa-plus mr-2"></i>Agregar Número
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Importaciones -->
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-700">
+                        <h3 class="text-lg font-bold">📊 Números Añadidos Recientemente</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">Número</th>
+                                    <th class="px-6 py-4 text-left">Operador</th>
+                                    <th class="px-6 py-4 text-left">Tipo</th>
+                                    <th class="px-6 py-4 text-left">Agregado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="numbers-list">
+                                <tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Cargando números...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spam Tab -->
+            <div id="spam-tab" class="tab-content">
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-bold mb-4">Reportar Spam/Fraude</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <input type="text" id="spam-number" placeholder="Número (34...)" class="px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <select id="spam-category" class="px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="SPAM">SPAM</option>
+                            <option value="FRAUD">FRAUDE</option>
+                            <option value="ROBOCALL">ROBOCALL</option>
+                        </select>
+                        <button onclick="reportSpam()" class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition">Reportar</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">Número</th>
+                                    <th class="px-6 py-4 text-left">Categoría</th>
+                                    <th class="px-6 py-4 text-left">Score</th>
+                                    <th class="px-6 py-4 text-left">Reportes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spam-list">
+                                <tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keys Tab -->
+            <div id="keys-tab" class="tab-content">
+                <!-- Crear nueva key -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4">➕ Nueva API Key</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Nombre de usuario</label>
+                                <input type="text" id="key-user-name" placeholder="Mi aplicación" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Límite de requests</label>
+                                <input type="number" id="key-limit" placeholder="10000" value="10000" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <button onclick="createApiKey()" class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold transition">
+                                <i class="fa-solid fa-plus mr-2"></i>Crear API Key
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4">ℹ️ Información de API Keys</h3>
+                        <div class="text-sm text-slate-400 space-y-3">
+                            <p><strong>¿Qué es una API Key?</strong></p>
+                            <p>Una clave única que permite autenticar solicitudes a tu API sin exponer la contraseña de admin.</p>
+                            <p class="text-xs bg-slate-900 p-2 rounded font-mono">Authorization: Bearer sk_xxxxxxx</p>
+                            <p><strong>Límites de requests:</strong></p>
+                            <p>Controla cuántas solicitudes puede hacer cada aplicación.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de API Keys -->
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="text-lg font-bold">API Keys Activas</h3>
+                        <button onclick="loadApiKeys()" class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded transition">
+                            <i class="fa-solid fa-rotate-right"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">Usuario</th>
+                                    <th class="px-6 py-4 text-left">API Key</th>
+                                    <th class="px-6 py-4 text-left">Requests</th>
+                                    <th class="px-6 py-4 text-left">Estado</th>
+                                    <th class="px-6 py-4 text-left">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keys-list">
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="logs-tab" class="tab-content">
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">Acción</th>
+                                    <th class="px-6 py-4 text-left">Detalles</th>
+                                    <th class="px-6 py-4 text-left">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-list">
+                                <tr><td colspan="3" class="px-6 py-8 text-center text-slate-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Verificar autenticación
+    window.addEventListener('load', async () => {
+        const token = localStorage.getItem('adminToken');
+        
+        if (!token) {
+            // Sin token, redirigir a login
+            console.log('No token found, redirecting to login');
+            window.location.href = '/admin-login.html';
+            return;
+        }
+
+        // Verificar que el token sea válido
+        try {
+            const response = await fetch('/api/admin/verify', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) {
+                console.log('Token invalid, redirecting to login');
+                localStorage.removeItem('adminToken');
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            // Token válido, cargar datos
+            console.log('Token valid, loading dashboard');
+            loadStats();
+        } catch (err) {
+            console.error('Error verifying token:', err);
+            localStorage.removeItem('adminToken');
+            window.location.href = '/admin-login.html';
+        }
+    });
+
+    // Cambiar tabs
+    function showTab(tab) {
+        // Actualizar nav items
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('active', 'bg-blue-600', 'border-blue-600');
+            el.classList.add('border-transparent');
+        });
+        event.target.closest('.nav-item').classList.add('active', 'bg-blue-600', 'border-blue-600');
+
+        // Actualizar contenido
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab + '-tab').classList.add('active');
+
+        // Actualizar título
+        const titles = {
+            'stats': 'Estadísticas Generales',
+            'portings': 'Gestión de Portabilidades',
+            'numbers': 'Gestionar Números',
+            'spam': 'Gestión de Spam/Fraude',
+            'keys': 'API Keys',
+            'logs': 'Registros de Actividad'
+        };
+        document.getElementById('pageTitle').textContent = titles[tab] || 'Panel Admin';
+
+        if (tab === 'stats') loadStats();
+        else if (tab === 'portings') loadPortings();
+        else if (tab === 'numbers') loadRecentNumbers();
+        else if (tab === 'spam') loadSpam();
+        else if (tab === 'keys') loadApiKeys();
+        else if (tab === 'logs') loadLogs();
+    }
+
+    async function loadStats() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/stats', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            console.log('Stats data:', data);
+
+            // Actualizar números
+            document.getElementById('total-searches').textContent = (data.total || 0).toLocaleString();
+            document.getElementById('successful').textContent = (data.successful || 0).toLocaleString();
+            document.getElementById('failed').textContent = (data.failed || 0).toLocaleString();
+            document.getElementById('avg-time').textContent = (data.avg_time || 0) + 'ms';
+
+            // Gráfico de operadores
+            if (data.by_operator && data.by_operator.length > 0) {
+                const ctx = document.getElementById('operatorChart').getContext('2d');
+                // Destruir gráfico anterior si existe
+                if (window.operatorChart && typeof window.operatorChart.destroy === 'function') {
+                    window.operatorChart.destroy();
+                }
+                window.operatorChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.by_operator.map(d => d.operator_found || 'Desconocido'),
+                        datasets: [{
+                            data: data.by_operator.map(d => d.total_searches || 0),
+                            backgroundColor: [
+                                '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
+                                '#8b5cf6', '#06b6d4', '#ec4899', '#14b8a6',
+                                '#f97316', '#6366f1'
+                            ]
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#cbd5e1' }
+                            }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('operatorChart').parentElement.innerHTML = 
+                    '<div class="text-center text-slate-400 py-8">Sin datos de búsquedas aún</div>';
+            }
+
+            // Top números
+            if (data.top_numbers && data.top_numbers.length > 0) {
+                const list = document.getElementById('top-numbers');
+                list.innerHTML = data.top_numbers.map((n, idx) => `
+                    <div class="bg-slate-700/50 p-3 rounded flex justify-between items-center hover:bg-slate-700 transition">
+                        <div>
+                            <span class="text-xs text-slate-400 mr-2">#${idx + 1}</span>
+                            <span class="font-mono text-sm">${n.phone_number || n.number}</span>
+                        </div>
+                        <span class="px-3 py-1 bg-blue-600/50 rounded-full text-xs font-semibold">${n.total_searches || n.searches || 0}x</span>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('top-numbers').innerHTML = 
+                    '<p class="text-slate-400 text-center py-8">Sin búsquedas registradas</p>';
+            }
+        } catch (err) {
+            console.error('Error loading stats:', err);
+            document.getElementById('total-searches').textContent = '⚠️';
+            document.getElementById('successful').textContent = '⚠️';
+            document.getElementById('failed').textContent = '⚠️';
+        }
+    }
+
+    async function loadPortings() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/portings', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            const list = document.getElementById('portings-list');
+            if (data.length === 0) {
+                list.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">No hay portabilidades registradas</td></tr>';
+            } else {
+                list.innerHTML = data.map(p => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                        <td class="px-6 py-4 font-mono text-sm">${p.phone_number}</td>
+                        <td class="px-6 py-4">${p.original_operator}</td>
+                        <td class="px-6 py-4 text-green-400 font-semibold">${p.current_operator}</td>
+                        <td class="px-6 py-4 text-slate-400 text-sm">${new Date(p.ported_date).toLocaleDateString('es-ES')}</td>
+                        <td class="px-6 py-4">
+                            <button onclick="deletePorting(${p.id})" class="px-3 py-1 text-xs bg-red-900/30 text-red-400 hover:bg-red-900/50 rounded transition">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (err) {
+            console.error('Error loading portings:', err);
+            document.getElementById('portings-list').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Error cargando portabilidades</td></tr>';
+        }
+    }
+
+    async function loadSpam() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/spam', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            const list = document.getElementById('spam-list');
+            if (data.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">No hay números de spam registrados</td></tr>';
+            } else {
+                list.innerHTML = data.map(s => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                        <td class="px-6 py-4 font-mono">${s.phone_number}</td>
+                        <td class="px-6 py-4"><span class="px-3 py-1 bg-red-900 text-red-300 rounded text-xs">${s.category}</span></td>
+                        <td class="px-6 py-4"><div class="w-24 bg-slate-700 rounded-full h-2"><div class="h-full bg-red-500 rounded-full" style="width: ${s.spam_score}%"></div></div></td>
+                        <td class="px-6 py-4">${s.reports}</td>
+                    </tr>
+                `).join('');
+            }
+        } catch (err) {
+            console.error('Error loading spam:', err);
+        }
+    }
+
+    async function loadLogs() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/logs', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            const list = document.getElementById('logs-list');
+            list.innerHTML = data.slice(0, 50).map(l => `
+                <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                    <td class="px-6 py-4"><span class="font-semibold">${l.action}</span></td>
+                    <td class="px-6 py-4 text-slate-400 text-sm">${typeof l.details === 'string' ? l.details.substring(0, 50) : JSON.stringify(l.details).substring(0, 50)}</td>
+                    <td class="px-6 py-4 text-slate-400">${new Date(l.created_at).toLocaleDateString('es-ES')}</td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error('Error loading logs:', err);
+        }
+    }
+
+    async function reportPorting() {
+        const phone = document.getElementById('porting-number').value.trim();
+        const oldOp = document.getElementById('porting-from').value;
+        const newOp = document.getElementById('porting-to').value;
+        
+        if (!phone || !oldOp || !newOp) {
+            alert('Por favor completa todos los campos');
+            return;
+        }
+        
+        if (oldOp === newOp) {
+            alert('El operador nuevo debe ser diferente al anterior');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/porting/update', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ 
+                    phoneNumber: phone,
+                    currentOperator: oldOp,
+                    newOperator: newOp
+                })
+            });
+            
+            const result = await response.json();
+            if (response.ok) {
+                alert(`✓ Portabilidad reportada:\n${phone} → ${newOp}`);
+                document.getElementById('porting-number').value = '';
+                document.getElementById('porting-from').value = '';
+                document.getElementById('porting-to').value = '';
+                loadPortings();
+            } else {
+                alert(`Error: ${result.error || 'No se pudo registrar'}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    async function deletePorting(id) {
+        if (!confirm('¿Eliminar esta portabilidad?')) return;
+        
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`/api/admin/porting/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                alert('Portabilidad eliminada');
+                loadPortings();
+            } else {
+                alert('Error al eliminar');
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    async function loadApiKeys() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/keys', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            const list = document.getElementById('keys-list');
+            if (data.length === 0) {
+                list.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">No hay API Keys creadas</td></tr>';
+            } else {
+                list.innerHTML = data.map(k => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                        <td class="px-6 py-4 font-semibold">${k.user_name || 'Sin nombre'}</td>
+                        <td class="px-6 py-4 font-mono text-xs">${k.api_key.substring(0, 20)}...</td>
+                        <td class="px-6 py-4 text-slate-400">${k.requests_used} / ${k.requests_limit}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded ${k.is_active ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}">
+                                ${k.is_active ? '✓ Activa' : '✗ Inactiva'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <button onclick="toggleApiKey(${k.id}, ${!k.is_active})" class="px-2 py-1 text-xs ${k.is_active ? 'bg-yellow-900/30 text-yellow-400' : 'bg-green-900/30 text-green-400'} hover:opacity-80 rounded transition">
+                                <i class="fa-solid ${k.is_active ? 'fa-lock' : 'fa-unlock'}"></i>
+                            </button>
+                            <button onclick="deleteApiKey(${k.id})" class="px-2 py-1 text-xs bg-red-900/30 text-red-400 hover:opacity-80 rounded transition">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (err) {
+            console.error('Error loading API keys:', err);
+        }
+    }
+
+    async function createApiKey() {
+        const userName = document.getElementById('key-user-name').value.trim();
+        const requestsLimit = document.getElementById('key-limit').value;
+        
+        if (!userName) {
+            alert('Ingresa un nombre de usuario');
+            return;
+        }
+        
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/keys/create', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userName, requestsLimit })
+            });
+            
+            const result = await response.json();
+            if (response.ok) {
+                alert(`✓ API Key creada:\n\n${result.apiKey}\n\n⚠️ Guárdala en un lugar seguro`);
+                document.getElementById('key-user-name').value = '';
+                document.getElementById('key-limit').value = '10000';
+                loadApiKeys();
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    async function deleteApiKey(id) {
+        if (!confirm('¿Eliminar esta API Key? Las solicitudes con esta clave dejarán de funcionar.')) return;
+        
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`/api/admin/keys/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                alert('API Key eliminada');
+                loadApiKeys();
+            } else {
+                alert('Error al eliminar');
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    async function toggleApiKey(id, activate) {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`/api/admin/keys/${id}/toggle`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isActive: activate })
+            });
+            
+            if (response.ok) {
+                alert(activate ? 'API Key activada' : 'API Key desactivada');
+                loadApiKeys();
+            } else {
+                alert('Error al cambiar estado');
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    async function reportSpam() {
+        const number = document.getElementById('spam-number').value;
+        const category = document.getElementById('spam-category').value;
+        
+        if (!number) return alert('Introduce un número');
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            await fetch('/api/admin/spam/report', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ number, category })
+            });
+            loadSpam();
+            document.getElementById('spam-number').value = '';
+        } catch (err) {
+            alert('Error reportando spam');
+        }
+    }
+
+    async function importCSV() {
+        const fileInput = document.getElementById('csv-file');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Por favor selecciona un archivo CSV');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const csv = e.target.result;
+                const lines = csv.split('\n').filter(line => line.trim());
+                
+                if (lines.length < 2) {
+                    alert('El archivo debe contener al menos un encabezado y una fila de datos');
+                    return;
+                }
+
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/admin/numbers/import-csv', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ csv })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`✓ Importación completada:\n${result.imported} números importados\n${result.failed || 0} fallidos`);
+                    fileInput.value = '';
+                    loadRecentNumbers();
+                } else {
+                    alert(`Error: ${result.error || 'No se pudo importar'}`);
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    async function addSingleNumber() {
+        const phone = document.getElementById('new-number').value.trim();
+        const operator = document.getElementById('new-operator').value;
+        const type = document.getElementById('new-type').value;
+
+        if (!phone || !operator) {
+            alert('Por favor completa los campos requeridos');
+            return;
+        }
+
+        if (!/^34\d{9}$/.test(phone)) {
+            alert('Formato inválido. Usa: 34XXXXXXXXX');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/numbers/add', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    phone_number: phone,
+                    operator_name: operator,
+                    type: type || 'MOBILE'
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(`✓ Número agregado: ${phone} → ${operator}`);
+                document.getElementById('new-number').value = '';
+                document.getElementById('new-operator').value = '';
+                document.getElementById('new-type').value = 'MOBILE';
+                loadRecentNumbers();
+            } else {
+                alert(`Error: ${result.error || 'No se pudo agregar'}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    async function loadRecentNumbers() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/numbers/recent', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+
+            const list = document.getElementById('numbers-list');
+            if (data.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">No hay números agregados aún</td></tr>';
+            } else {
+                list.innerHTML = data.map(n => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                        <td class="px-6 py-4 font-mono text-sm">${n.phone_number || n.range_start}</td>
+                        <td class="px-6 py-4 font-semibold">${n.operator_name}</td>
+                        <td class="px-6 py-4 text-slate-400">${n.type || 'N/A'}</td>
+                        <td class="px-6 py-4 text-slate-400 text-sm">${new Date(n.created_at).toLocaleDateString('es-ES')}</td>
+                    </tr>
+                `).join('');
+            }
+        } catch (err) {
+            console.error('Error loading numbers:', err);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('rememberAdmin');
+        window.location.href = '/admin-login.html';
+    }
+</script>
+
+</body>
+</html>

@@ -1,7 +1,23 @@
 {
+  "name": "consultas-telefonicas",
+  "version": "1.0.0",
+  "description": "Sistema de consulta de operadores telefónicos españoles",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed-ranges": "node seedRanges.js",
+    "seed": "node seed.js",
+    "import": "node importDATA.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
+    "axios": "^1.13.3",
     "csv-parser": "^3.2.0",
     "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.16.1"
   }
 }

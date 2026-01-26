@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Telco Lookup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white overflow-hidden">
+
+    <!-- Fondo animado -->
+    <div class="fixed inset-0 -z-10">
+        <div class="absolute top-20 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Container -->
+    <div class="min-h-screen flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-md">
+            
+            <!-- Logo -->
+            <div class="text-center mb-10">
+                <div class="inline-block p-4 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl mb-4">
+                    <i class="fa-solid fa-lock text-white text-3xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold mb-2">
+                    <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                        Admin Panel
+                    </span>
+                </h1>
+                <p class="text-slate-400">Acceso restringido a administradores</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-8 backdrop-blur-xl">
+                
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    
+                    <!-- Password Input -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-slate-300 mb-3">
+                            <i class="fa-solid fa-key mr-2"></i>Contraseña
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="passwordInput" 
+                                placeholder="Ingresa la contraseña" 
+                                class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-white placeholder-slate-500 transition"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                onclick="togglePassword()" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                            >
+                                <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center mb-6">
+                        <input 
+                            type="checkbox" 
+                            id="rememberMe" 
+                            class="w-4 h-4 bg-slate-900 border border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        >
+                        <label for="rememberMe" class="ml-2 text-sm text-slate-400 cursor-pointer hover:text-slate-300">
+                            Recuerda esta sesión
+                        </label>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="errorMessage" class="hidden mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg flex items-center gap-3 text-red-400">
+                        <i class="fa-solid fa-exclamation-circle"></i>
+                        <span id="errorText"></span>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div id="successMessage" class="hidden mb-6 p-4 bg-green-900/30 border border-green-700 rounded-lg flex items-center gap-3 text-green-400">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <span>¡Autenticación exitosa! Redirigiendo...</span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg font-semibold transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        id="submitBtn"
+                    >
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        Acceder al Panel
+                    </button>
+
+                </form>
+
+                <!-- Divider -->
+                <div class="my-6 flex items-center gap-4">
+                    <div class="flex-1 h-px bg-slate-700"></div>
+                    <span class="text-slate-500 text-sm">o</span>
+                    <div class="flex-1 h-px bg-slate-700"></div>
+                </div>
+
+                <!-- Back to Home -->
+                <a href="/" class="block w-full px-4 py-3 text-center border border-slate-600 hover:border-slate-500 rounded-lg text-slate-300 hover:text-white transition">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>Volver al inicio
+                </a>
+
+            </div>
+
+            <!-- Footer Info -->
+            <div class="mt-8 p-4 bg-slate-800/30 border border-slate-700 rounded-lg text-center text-sm text-slate-400">
+                <i class="fa-solid fa-shield mr-2"></i>
+                Esta zona está protegida. Solo administradores autorizados.
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon = document.getElementById('eyeIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Handle login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Clear messages
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="animate-spin">⏳</span> Validando...';
+
+            try {
+                // Enviar al servidor para validar
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    // Guardar token
+                    localStorage.setItem('adminToken', data.token);
+                    
+                    // Si checked "Remember me"
+                    if (document.getElementById('rememberMe').checked) {
+                        localStorage.setItem('rememberAdmin', 'true');
+                    }
+
+                    // Mostrar éxito
+                    successDiv.classList.remove('hidden');
+                    
+                    // Redirigir al admin después de 1.5s
+                    setTimeout(() => {
+                        window.location.href = '/admin.html';
+                    }, 1500);
+                } else {
+                    throw new Error(data.error || 'Autenticación fallida');
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                document.getElementById('errorText').textContent = error.message || 'Error desconocido';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al Panel';
+            }
+        }
+
+        // Check if already logged in
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                // Verificar que el token sea válido
+                try {
+                    const response = await fetch('/api/admin/verify', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        // Token válido, redirigir al admin
+                        window.location.href = '/admin.html';
+                    } else {
+                        // Token inválido, limpiar
+                        localStorage.removeItem('adminToken');
+                    }
+                } catch (err) {
+                    console.error('Error verifying token:', err);
+                }
+            }
+        });
+
+        // Enter para enviar
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin(new Event('submit'));
+        });
+    </script>
+
+</body>
+</html>
