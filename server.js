@@ -63,10 +63,126 @@ app.get('/api/porting/:number', async (req, res) => {
     res.json(porting);
 });
 
+// Estadísticas públicas (sin autenticación)
+app.get('/api/public/stats', async (req, res) => {
+    try {
+        const db = require('./config/db');
+        
+        // Total de búsquedas
+        const [[totalSearches]] = await db.query(
+            'SELECT COUNT(*) as count FROM search_history'
+        );
+        
+        // Búsquedas exitosas
+        const [[successSearches]] = await db.query(
+            'SELECT COUNT(*) as count FROM search_history WHERE operator_found IS NOT NULL'
+        );
+        
+        // Operadores únicos
+        const [[operatorCount]] = await db.query(
+            'SELECT COUNT(DISTINCT operator_name) as count FROM numero_ranges WHERE operator_name IS NOT NULL'
+        );
+        
+        // Tiempo promedio
+        const [[avgTime]] = await db.query(
+            'SELECT AVG(response_time_ms) as avg FROM search_history WHERE response_time_ms > 0'
+        );
+
+        // Top operadores
+        const [topOperators] = await db.query(
+            `SELECT operator_found, COUNT(*) as search_count 
+             FROM search_history 
+             WHERE operator_found IS NOT NULL
+             GROUP BY operator_found 
+             ORDER BY search_count DESC 
+             LIMIT 10`
+        );
+
+        res.json({
+            total_searches: parseInt(totalSearches?.count) || 0,
+            successful_searches: parseInt(successSearches?.count) || 0,
+            operator_count: parseInt(operatorCount?.count) || 0,
+            average_response_time: parseFloat(avgTime?.avg) || 0,
+            top_operators: topOperators || []
+        });
+    } catch (err) {
+        console.error('Public stats error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Verificar spam
 app.get('/api/spam-check/:number', async (req, res) => {
     const spam = await SpamService.checkSpam(req.params.number);
     res.json(spam);
+});
+
+// Reportar portabilidad (público)
+app.post('/api/public/porting/report', async (req, res) => {
+    try {
+        const { phoneNumber, currentOperator, newOperator } = req.body;
+        
+        if (!phoneNumber || !newOperator) {
+            return res.status(400).json({ error: 'Faltan campos requeridos' });
+        }
+
+        if (!/^34\d{9}$/.test(phoneNumber)) {
+            return res.status(400).json({ error: 'Formato de número inválido' });
+        }
+
+        const db = require('./config/db');
+        const phoneNum = BigInt(phoneNumber.substring(2));
+
+        // Buscar el rango que contiene este número
+        const [ranges] = await db.query(
+            'SELECT * FROM numero_ranges WHERE range_start <= ? AND range_end >= ? LIMIT 1',
+            [phoneNum, phoneNum]
+        );
+
+        if (ranges && ranges.length > 0) {
+            const range = ranges[0];
+            
+            // Actualizar el operador
+            await db.query(
+                'UPDATE numero_ranges SET operator_name = ? WHERE id = ?',
+                [newOperator, range.id]
+            );
+            
+            // Actualizar cache
+            try {
+                await db.query(
+                    `INSERT INTO operators_cache (phone_number, operator_name, nrn) 
+                     VALUES (?, ?, ?)
+                     ON DUPLICATE KEY UPDATE operator_name = VALUES(operator_name), nrn = VALUES(nrn)`,
+                    [phoneNumber, newOperator, range.nrn]
+                );
+            } catch (cacheErr) {
+                console.log('Cache update warning:', cacheErr.message);
+            }
+        }
+
+        // Registrar en ported_numbers para auditoría
+        await db.query(
+            'INSERT INTO ported_numbers (phone_number, original_operator, current_operator, ported_date) VALUES (?, ?, ?, NOW())',
+            [phoneNumber, currentOperator || 'Desconocido', newOperator]
+        );
+
+        // Log de actividad
+        await Logger.log('PUBLIC_PORTING_REPORTED', {
+            phoneNumber,
+            from: currentOperator,
+            to: newOperator,
+            ip: req.ip
+        });
+
+        res.json({ 
+            success: true, 
+            message: `Portabilidad registrada: ${phoneNumber} → ${newOperator}`
+        });
+    } catch (err) {
+        console.error('Public porting error:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ==================== AUTENTICACIÓN ====================
@@ -111,7 +227,15 @@ app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
         const failed = stats.reduce((sum, s) => sum + (s.failed || 0), 0);
         const avgTime = Math.round(stats.reduce((sum, s) => sum + (s.avg_response_time || 0), 0) / (stats.length || 1));
 
-        const operatorStats = await AnalyticsService.getOperatorStats();
+        let operatorStats = await AnalyticsService.getOperatorStats();
+        // Normalizar nombres de campos y convertir a números
+        operatorStats = operatorStats.map(op => ({
+            operator_found: op.operator || op.operator_found || 'Desconocido',
+            total_searches: parseInt(op.searches || op.total_searches || 0),
+            successful: parseInt(op.successful || 0),
+            avg_response_time: parseFloat(op.avg_response_time || 0)
+        }));
+
         const topNumbers = await AnalyticsService.getMostSearched(10);
 
         res.json({
@@ -119,11 +243,20 @@ app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
             successful,
             failed,
             avg_time: avgTime,
-            by_operator: operatorStats,
-            top_numbers: topNumbers
+            by_operator: operatorStats || [],
+            top_numbers: topNumbers || []
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Stats error:', err);
+        res.status(500).json({ 
+            error: err.message,
+            total: 0,
+            successful: 0,
+            failed: 0,
+            avg_time: 0,
+            by_operator: [],
+            top_numbers: []
+        });
     }
 });
 

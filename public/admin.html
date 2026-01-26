@@ -113,16 +113,53 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-8">
-                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                        <h3 class="text-xl font-bold mb-6">Búsquedas por Operador</h3>
-                        <canvas id="operatorChart" height="100"></canvas>
-                    </div>
-                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                        <h3 class="text-xl font-bold mb-6">Top 10 Números Más Buscados</h3>
-                        <div id="top-numbers" class="space-y-2 max-h-96 overflow-y-auto">
-                            <p class="text-slate-400 text-center py-8">Cargando...</p>
+                <!-- Gráficos de Operadores -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <!-- Gráfico Principal - Doughnut -->
+                    <div class="lg:col-span-2 bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-6">📞 Búsquedas por Operador</h3>
+                        <div style="position: relative; height: 300px;">
+                            <canvas id="operatorChart"></canvas>
                         </div>
+                    </div>
+
+                    <!-- Estadísticas de Operadores -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4">🏢 Top Operadores</h3>
+                        <div id="operator-stats" class="space-y-3">
+                            <div class="text-center text-slate-400 py-8">Cargando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla Detallada de Operadores -->
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden mb-8">
+                    <div class="px-6 py-4 border-b border-slate-700">
+                        <h3 class="text-xl font-bold">📊 Análisis Detallado de Operadores</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">🏢 Operador</th>
+                                    <th class="px-6 py-4 text-center">📊 Búsquedas</th>
+                                    <th class="px-6 py-4 text-center">📈 Porcentaje</th>
+                                    <th class="px-6 py-4 text-center">⚡ Tiempo Promedio</th>
+                                    <th class="px-6 py-4 text-center">✅ Tasa Éxito</th>
+                                </tr>
+                            </thead>
+                            <tbody id="operators-table">
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Cargando datos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Top 10 Números -->
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-6">🔝 Top 10 Números Más Buscados</h3>
+                    <div id="top-numbers" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <p class="text-slate-400 text-center py-8 md:col-span-2">Cargando...</p>
                     </div>
                 </div>
             </div>
@@ -495,72 +532,150 @@
             const response = await fetch('/api/admin/stats', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
             const data = await response.json();
             
-            console.log('Stats data:', data);
+            console.log('📊 Stats data:', data);
 
-            // Actualizar números
+            // Actualizar números principales
             document.getElementById('total-searches').textContent = (data.total || 0).toLocaleString();
             document.getElementById('successful').textContent = (data.successful || 0).toLocaleString();
             document.getElementById('failed').textContent = (data.failed || 0).toLocaleString();
             document.getElementById('avg-time').textContent = (data.avg_time || 0) + 'ms';
 
-            // Gráfico de operadores
-            if (data.by_operator && data.by_operator.length > 0) {
-                const ctx = document.getElementById('operatorChart').getContext('2d');
-                // Destruir gráfico anterior si existe
-                if (window.operatorChart && typeof window.operatorChart.destroy === 'function') {
-                    window.operatorChart.destroy();
-                }
-                window.operatorChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.by_operator.map(d => d.operator_found || 'Desconocido'),
-                        datasets: [{
-                            data: data.by_operator.map(d => d.total_searches || 0),
-                            backgroundColor: [
-                                '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
-                                '#8b5cf6', '#06b6d4', '#ec4899', '#14b8a6',
-                                '#f97316', '#6366f1'
-                            ]
-                        }]
-                    },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                labels: { color: '#cbd5e1' }
-                            }
-                        }
-                    }
-                });
-            } else {
-                document.getElementById('operatorChart').parentElement.innerHTML = 
-                    '<div class="text-center text-slate-400 py-8">Sin datos de búsquedas aún</div>';
+            // Validar que hay datos de operadores
+            if (!data.by_operator || !Array.isArray(data.by_operator) || data.by_operator.length === 0) {
+                console.warn('⚠️ No operator data available');
+                document.getElementById('operatorChart').innerHTML = '<div class="text-center text-slate-400 py-8">Sin datos de búsquedas aún</div>';
+                document.getElementById('operator-stats').innerHTML = '<div class="text-center text-slate-400 py-8">Sin datos disponibles</div>';
+                document.getElementById('operators-table').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Sin datos</td></tr>';
+                return;
             }
 
-            // Top números
-            if (data.top_numbers && data.top_numbers.length > 0) {
-                const list = document.getElementById('top-numbers');
-                list.innerHTML = data.top_numbers.map((n, idx) => `
-                    <div class="bg-slate-700/50 p-3 rounded flex justify-between items-center hover:bg-slate-700 transition">
-                        <div>
-                            <span class="text-xs text-slate-400 mr-2">#${idx + 1}</span>
-                            <span class="font-mono text-sm">${n.phone_number || n.number}</span>
+            const colors = [
+                '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
+                '#8b5cf6', '#06b6d4', '#ec4899', '#14b8a6',
+                '#f97316', '#6366f1'
+            ];
+            
+            // Gráfico de operadores mejorado
+            const ctx = document.getElementById('operatorChart').getContext('2d');
+            if (window.operatorChart && typeof window.operatorChart.destroy === 'function') {
+                window.operatorChart.destroy();
+            }
+            
+            window.operatorChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.by_operator.map(d => d.operator_found || 'Desconocido'),
+                    datasets: [{
+                        label: 'Búsquedas',
+                        data: data.by_operator.map(d => d.total_searches || 0),
+                        backgroundColor: colors.slice(0, data.by_operator.length),
+                        borderColor: colors.slice(0, data.by_operator.length),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: colors.slice(0, data.by_operator.length).map(c => c + 'dd')
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 12, weight: 'bold' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#334155' },
+                            ticks: { color: '#cbd5e1' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+
+            // Top Operadores (tarjetas)
+            const operatorStats = document.getElementById('operator-stats');
+            operatorStats.innerHTML = data.by_operator.slice(0, 5).map((op, idx) => {
+                const percentage = data.total > 0 ? ((op.total_searches / data.total) * 100).toFixed(1) : 0;
+                return `
+                    <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600 hover:border-slate-500 transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-slate-100">${idx + 1}. ${op.operator_found || 'Desconocido'}</span>
+                            <span class="text-xs px-2 py-1 bg-blue-600/50 rounded">${percentage}%</span>
                         </div>
-                        <span class="px-3 py-1 bg-blue-600/50 rounded-full text-xs font-semibold">${n.total_searches || n.searches || 0}x</span>
+                        <div class="w-full bg-slate-600 rounded-full h-2 mb-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                        <p class="text-xs text-slate-400">${(op.total_searches || 0).toLocaleString()} búsquedas</p>
                     </div>
-                `).join('');
+                `;
+            }).join('');
+
+            // Tabla detallada de operadores
+            const table = document.getElementById('operators-table');
+            table.innerHTML = data.by_operator.map(op => {
+                const percentage = data.total > 0 ? ((op.total_searches / data.total) * 100).toFixed(1) : 0;
+                const avgTime = (parseFloat(op.avg_response_time) || 0).toFixed(0);
+                const successRate = op.total_searches > 0 ? ((op.successful / op.total_searches) * 100).toFixed(1) : 0;
+                
+                return `
+                    <tr class="border-b border-slate-700 hover:bg-slate-700/30 transition">
+                        <td class="px-6 py-4 font-semibold">${op.operator_found || 'Desconocido'}</td>
+                        <td class="px-6 py-4 text-center text-blue-400 font-bold">${(op.total_searches || 0).toLocaleString()}</td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="font-bold">${percentage}%</span>
+                                <div class="w-16 bg-slate-600 rounded h-2">
+                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center text-yellow-400">${avgTime}ms</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-2 py-1 rounded text-sm font-semibold ${successRate >= 90 ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'}">
+                                ${successRate}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Top números
+            if (data.top_numbers && Array.isArray(data.top_numbers) && data.top_numbers.length > 0) {
+                const list = document.getElementById('top-numbers');
+                list.innerHTML = data.top_numbers.map((n, idx) => {
+                    const searches = n.total_searches || n.searches || 0;
+                    return `
+                        <div class="bg-gradient-to-r from-slate-700/50 to-slate-600/30 p-4 rounded-lg border border-slate-600 hover:border-blue-500 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xl font-bold text-slate-300">#${idx + 1}</span>
+                                <span class="text-xs px-2 py-1 bg-blue-600/50 text-blue-300 rounded-full font-bold">${searches}x</span>
+                            </div>
+                            <span class="font-mono text-sm text-blue-400">${n.phone_number || n.number}</span>
+                        </div>
+                    `;
+                }).join('');
             } else {
                 document.getElementById('top-numbers').innerHTML = 
-                    '<p class="text-slate-400 text-center py-8">Sin búsquedas registradas</p>';
+                    '<p class="text-slate-400 text-center py-8 md:col-span-2">Sin búsquedas registradas</p>';
             }
         } catch (err) {
-            console.error('Error loading stats:', err);
+            console.error('❌ Error loading stats:', err);
             document.getElementById('total-searches').textContent = '⚠️';
             document.getElementById('successful').textContent = '⚠️';
             document.getElementById('failed').textContent = '⚠️';
+            alert('Error cargando estadísticas. Abre la consola (F12) para ver detalles.');
         }
     }
 

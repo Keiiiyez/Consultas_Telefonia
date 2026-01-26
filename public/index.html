@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telco Lookup | Consulta de Operadores</title>
+    <title>HDV Contact S.A.C. | Consulta de Operadores</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,7 +33,7 @@
                     <i class="fa-solid fa-tower-cell text-white text-xl"></i>
                 </div>
                 <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    Telco Lookup
+                    HDV Contact S.A.C.
                 </h1>
             </div>
             <div class="flex gap-4">
@@ -179,6 +179,107 @@
         </div>
     </section>
 
+    <!-- Estadísticas Públicas Section -->
+    <section class="py-20 px-6 bg-slate-900/50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">📊 Estadísticas en Tiempo Real</h2>
+                <p class="text-slate-400 text-lg">Transparencia total sobre búsquedas de operadores</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700 rounded-lg p-6">
+                    <p class="text-blue-300 text-sm mb-2">📊 Total de Búsquedas</p>
+                    <p class="text-4xl font-bold text-blue-300" id="pub-total-searches">-</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700 rounded-lg p-6">
+                    <p class="text-green-300 text-sm mb-2">✅ Búsquedas Exitosas</p>
+                    <p class="text-4xl font-bold text-green-400" id="pub-successful">-</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700 rounded-lg p-6">
+                    <p class="text-purple-300 text-sm mb-2">📞 Operadores Diferentes</p>
+                    <p class="text-4xl font-bold text-purple-400" id="pub-operator-count">-</p>
+                </div>
+                <div class="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700 rounded-lg p-6">
+                    <p class="text-yellow-300 text-sm mb-2">⚡ Tiempo Promedio</p>
+                    <p class="text-4xl font-bold text-yellow-300" id="pub-avg-time">-</p>
+                </div>
+            </div>
+
+            <!-- Top Operadores -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-8">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-tower-cell text-cyan-400"></i>
+                    Operadores Más Buscados
+                </h3>
+                <div id="pub-operators" class="grid md:grid-cols-2 gap-6">
+                    <div class="text-center text-slate-400 md:col-span-2 py-8">Cargando datos...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reportar Portabilidad Section -->
+    <section class="py-20 px-6 bg-slate-950">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">📞 Reportar Cambio de Operador</h2>
+                <p class="text-slate-400 text-lg">¿Tu número cambió de operador? Ayúdanos a mantener la información actualizada</p>
+            </div>
+
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 max-w-2xl mx-auto">
+                <div class="space-y-6">
+                    <!-- Número -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">📱 Número Telefónico</label>
+                        <div class="flex gap-2">
+                            <span class="px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-slate-400">+34</span>
+                            <input type="text" id="pub-porting-number" placeholder="600000000" maxlength="9"
+                                   class="flex-1 px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Operador Anterior -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">🏢 Operador Anterior</label>
+                        <select id="pub-porting-from" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Selecciona...</option>
+                            <option value="Movistar">Movistar</option>
+                            <option value="Vodafone">Vodafone</option>
+                            <option value="Orange">Orange</option>
+                            <option value="Yoigo">Yoigo</option>
+                            <option value="MVNO">MVNO</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <!-- Operador Nuevo -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">✓ Operador Nuevo</label>
+                        <select id="pub-porting-to" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Selecciona...</option>
+                            <option value="Movistar">Movistar</option>
+                            <option value="Vodafone">Vodafone</option>
+                            <option value="Orange">Orange</option>
+                            <option value="Yoigo">Yoigo</option>
+                            <option value="MVNO">MVNO</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <!-- Botón -->
+                    <button onclick="reportPublicPorting()" class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold transition transform hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-paper-plane mr-2"></i>Enviar Reporte
+                    </button>
+
+                    <p class="text-xs text-slate-400 text-center">
+                        ✓ Tu reporte ayuda a mantener nuestra base de datos actualizada y precisa.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="py-20 px-6 bg-gradient-to-b from-slate-900 to-slate-950">
         <div class="max-w-4xl mx-auto text-center">
@@ -200,7 +301,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-800 bg-slate-950 py-8 px-6">
         <div class="max-w-6xl mx-auto text-center text-slate-500 text-sm">
-            <p>© 2026 Telco Lookup. Todos los derechos reservados.</p>
+            <p>© 2026 HDV Contact S.A.C. Todos los derechos reservados.</p>
         </div>
     </footer>
 
@@ -335,8 +436,88 @@
             if (e.target.id === 'adminModal') closeAdminModal();
         });
 
+        // Cargar estadísticas públicas al cargar la página
+        async function loadPublicStats() {
+            try {
+                const response = await fetch('/api/public/stats');
+                const data = await response.json();
+                
+                document.getElementById('pub-total-searches').textContent = (data.total_searches || 0).toLocaleString();
+                document.getElementById('pub-successful').textContent = (data.successful_searches || 0).toLocaleString();
+                document.getElementById('pub-operator-count').textContent = (data.operator_count || 0);
+                document.getElementById('pub-avg-time').textContent = (data.average_response_time || 0).toFixed(0) + 'ms';
+
+                // Top Operadores
+                if (data.top_operators && data.top_operators.length > 0) {
+                    const operatorsDiv = document.getElementById('pub-operators');
+                    operatorsDiv.innerHTML = data.top_operators.slice(0, 6).map((op, idx) => {
+                        const percentage = data.total_searches > 0 ? ((op.search_count / data.total_searches) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="bg-slate-700/50 rounded-lg p-6 border border-slate-600">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="font-bold text-lg">${op.operator_found || 'Desconocido'}</h4>
+                                    <span class="text-sm px-2 py-1 bg-blue-600/50 rounded">${percentage}%</span>
+                                </div>
+                                <div class="w-full bg-slate-600 rounded h-2 mb-3">
+                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded" style="width: ${percentage}%"></div>
+                                </div>
+                                <p class="text-sm text-slate-400">${(op.search_count || 0).toLocaleString()} búsquedas</p>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error('Error loading public stats:', err);
+            }
+        }
+
+        // Reportar portabilidad desde la página pública
+        async function reportPublicPorting() {
+            const phone = '34' + document.getElementById('pub-porting-number').value.trim();
+            const from = document.getElementById('pub-porting-from').value;
+            const to = document.getElementById('pub-porting-to').value;
+
+            if (!phone || phone.length < 11 || !from || !to) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            if (from === to) {
+                alert('El operador nuevo debe ser diferente al anterior');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/public/porting/report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phoneNumber: phone,
+                        currentOperator: from,
+                        newOperator: to
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`✓ ¡Gracias!\nTu reporte ha sido recibido:\n${phone} → ${to}`);
+                    document.getElementById('pub-porting-number').value = '';
+                    document.getElementById('pub-porting-from').value = '';
+                    document.getElementById('pub-porting-to').value = '';
+                    loadPublicStats(); // Recargar estadísticas
+                } else {
+                    alert(`Error: ${result.error || 'No se pudo enviar el reporte'}`);
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        }
+
         // Verificar si ya está logueado
         window.addEventListener('load', () => {
+            loadPublicStats(); // Cargar estadísticas públicas
+            
             const token = localStorage.getItem('adminToken');
             if (token) {
                 // Si ya está logueado, mostrar un indicador
