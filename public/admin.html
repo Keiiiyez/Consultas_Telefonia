@@ -53,6 +53,9 @@
             <button onclick="showTab('logs')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-file-lines mr-2"></i><span>Logs</span>
             </button>
+            <button onclick="showTab('vonage')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-satellite mr-2"></i><span>Verificar Vonage</span>
+            </button>
         </nav>
 
         <!-- Footer -->
@@ -452,6 +455,77 @@
                                 <tr><td colspan="3" class="px-6 py-8 text-center text-slate-500">Cargando...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vonage Tab -->
+            <div id="vonage-tab" class="tab-content hidden">
+                <div class="bg-slate-900 rounded-lg border border-slate-700 p-8">
+                    <h2 class="text-2xl font-bold mb-6">🛰️ Verificación con Vonage (Gratis)</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Panel Izquierdo: Verificación -->
+                        <div>
+                            <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                                <h3 class="text-lg font-semibold mb-4">Verificar Número</h3>
+                                <p class="text-sm text-slate-400 mb-4">Usa Vonage (gratis) para verificar números en tiempo real</p>
+                                
+                                <div class="space-y-3">
+                                    <input type="text" id="vonage-number" placeholder="34XXXXXXXXX" 
+                                        class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                                    <button onclick="verifyWithVonage()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition">
+                                        <i class="fa-solid fa-magnifying-glass mr-2"></i>Verificar con Vonage
+                                    </button>
+                                </div>
+                                
+                                <!-- Resultado Vonage -->
+                                <div id="vonage-result" class="mt-6 hidden">
+                                    <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600 space-y-2 text-sm">
+                                        <div><strong>Formato Internacional:</strong> <span id="vonage-intl"></span></div>
+                                        <div><strong>Operador:</strong> <span id="vonage-carrier" class="text-blue-400"></span></div>
+                                        <div><strong>Tipo:</strong> <span id="vonage-type"></span></div>
+                                        <div><strong>País:</strong> <span id="vonage-country"></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel Derecho: Comparar -->
+                        <div>
+                            <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                                <h3 class="text-lg font-semibold mb-4">Comparar con BD</h3>
+                                <p class="text-sm text-slate-400 mb-4">Verifica si hay discrepancias con tu base de datos</p>
+                                
+                                <div class="space-y-3">
+                                    <input type="text" id="compare-number" placeholder="34XXXXXXXXX" 
+                                        class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                                    <input type="text" id="compare-operator" placeholder="Operador en BD (ej: Movistar)" 
+                                        class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                                    <button onclick="compareWithVonage()" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold transition">
+                                        <i class="fa-solid fa-scale-balanced mr-2"></i>Comparar
+                                    </button>
+                                </div>
+
+                                <!-- Resultado Comparación -->
+                                <div id="compare-result" class="mt-6 hidden">
+                                    <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600 space-y-2 text-sm">
+                                        <div><strong>BD:</strong> <span id="compare-bd"></span></div>
+                                        <div><strong>Vonage:</strong> <span id="compare-vonage" class="text-blue-400"></span></div>
+                                        <div><strong>Estado:</strong> <span id="compare-status"></span></div>
+                                        <div id="compare-recommendation" class="mt-2 p-2 bg-yellow-900/30 border border-yellow-700 rounded hidden">
+                                            <strong>⚠️ Recomendación:</strong> <span id="rec-text"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="mt-6 bg-blue-900/20 border border-blue-800 rounded-lg p-4 text-sm text-slate-300">
+                        <i class="fa-solid fa-info-circle mr-2"></i>
+                        <strong>ℹ️ Plan Gratis:</strong> Vonage Basic Lookup es completamente gratis. Verifica el operador, tipo de línea y detecta portabilidades aproximadas.
                     </div>
                 </div>
             </div>
@@ -1086,6 +1160,93 @@
         localStorage.removeItem('rememberAdmin');
         window.location.href = '/admin-login.html';
     }
+
+    // Vonage Functions
+    async function verifyWithVonage() {
+        const number = document.getElementById('vonage-number').value.trim();
+        
+        if (!number) {
+            alert('Ingresa un número');
+            return;
+        }
+
+        if (!/^34\d{9}$/.test(number)) {
+            alert('Formato inválido. Usa: 34XXXXXXXXX');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/vonage/verify/${number}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert('Error: ' + data.error);
+                document.getElementById('vonage-result').classList.add('hidden');
+                return;
+            }
+
+            // Mostrar resultados
+            document.getElementById('vonage-intl').textContent = data.internationalFormat || '-';
+            document.getElementById('vonage-carrier').textContent = data.carrierName || 'Desconocido';
+            document.getElementById('vonage-type').textContent = data.numberType || '-';
+            document.getElementById('vonage-country').textContent = data.countryName || '-';
+            document.getElementById('vonage-result').classList.remove('hidden');
+        } catch (err) {
+            alert('Error conectando con Vonage: ' + err.message);
+        }
+    }
+
+    async function compareWithVonage() {
+        const number = document.getElementById('compare-number').value.trim();
+        const operator = document.getElementById('compare-operator').value.trim();
+        
+        if (!number || !operator) {
+            alert('Completa ambos campos');
+            return;
+        }
+
+        if (!/^34\d{9}$/.test(number)) {
+            alert('Formato inválido. Usa: 34XXXXXXXXX');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert('Error: ' + data.error);
+                document.getElementById('compare-result').classList.add('hidden');
+                return;
+            }
+
+            if (!data.compared) {
+                alert('No se pudo realizar la comparación: ' + data.vonageError);
+                return;
+            }
+
+            // Mostrar resultados
+            document.getElementById('compare-bd').textContent = operator;
+            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
+            document.getElementById('compare-status').textContent = data.match ? 
+                '✅ Coinciden' : '⚠️ Discrepancia detectada';
+
+            // Color según resultado
+            if (!data.match) {
+                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
+                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
+                document.getElementById('compare-recommendation').classList.remove('hidden');
+            } else {
+                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
+                document.getElementById('compare-recommendation').classList.add('hidden');
+            }
+
+            document.getElementById('compare-result').classList.remove('hidden');
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    }
+
 </script>
 
 </body>

@@ -49,6 +49,12 @@ DB_USER=tu_usuario_db
 DB_PASSWORD=tu_contraseña_db
 DB_NAME=telco_lookup
 PORT=3000
+
+# Vonage (Opcional - Plan Gratis - Basic Lookup)
+# Si deseas usar verificación externa de números
+# Obtén tus claves en: https://dashboard.nexmo.com/
+# VONAGE_API_KEY=tu_api_key
+# VONAGE_API_SECRET=tu_api_secret
 ```
 ⚠️ **Importante:** Usa contraseñas fuertes y únicas. Nunca compartas el archivo `.env`.
 
@@ -143,6 +149,14 @@ El servidor estará disponible en: **http://localhost:3000**
 - Filtrado por fecha y acción
 - Información detallada de cambios
 
+**🛰️ Verificar Vonage** (NUEVO - Opcional)
+- Verifica números con Vonage en tiempo real (Gratis)
+- Información: Operador, tipo de línea, país
+- Comparar con BD para detectar discrepancias
+- Recibe recomendaciones de actualización
+- ℹ️ **Requiere configuración de claves Vonage en `.env`**
+- Ver [VONAGE_SETUP.md](VONAGE_SETUP.md) para instrucciones
+
 ## 🔗 API Endpoints
 
 ### Endpoints Públicos (sin autenticación)
@@ -180,7 +194,31 @@ Body: {
   "currentOperator": "Movistar",
   "newOperator": "Vodafone"
 }
+# Verificar número con Vonage (Gratis - Basic) *Opcional*
+GET /api/vonage/verify/:number
+Response: {
+  "success": true,
+  "internationalFormat": "+34 600 123 456",
+  "nationalFormat": "600 123 456",
+  "carrierName": "Movistar",
+  "numberType": "mobile",
+  "countryCode": "ES",
+  "countryName": "Spain",
+  "source": "vonage_basic"
+}
+*Requiere VONAGE_API_KEY y VONAGE_API_SECRET en .env*
 
+# Comparar número con BD y Vonage *Opcional*
+GET /api/vonage/compare/:number/:dbOperator
+Response: {
+  "compared": true,
+  "vonageInfo": {...},
+  "dbOperator": "Movistar",
+  "match": true/false,
+  "message": "Operadores coinciden o discrepancia detectada",
+  "recommendation": "opcional - si hay discrepancia"
+}
+*Requiere VONAGE_API_KEY y VONAGE_API_SECRET en .env*
 # Health check
 GET /api/health
 ```
@@ -357,3 +395,4 @@ Este proyecto es privado. Todos los derechos reservados.
 - 🔧 Corrección en nombres de campos de base de datos
 - 📱 Mejor experiencia UX para usuarios sin permisos admin
 - 🔐 Endpoints públicos con validación de entrada para seguridad
+- 🛰️ **Integración Vonage (opcional)** - Verifica números con API externa (requiere configuración)

@@ -185,6 +185,65 @@ app.post('/api/public/porting/report', async (req, res) => {
     }
 });
 
+// Verificar número con Vonage (Gratis - Plan Basic)
+app.get('/api/vonage/verify/:number', async (req, res) => {
+    try {
+        const VonageService = require('./services/vonageService');
+        
+        if (!VonageService.isGratisAvailable()) {
+            return res.status(400).json({ 
+                error: 'Vonage no configurado',
+                message: 'Configura VONAGE_API_KEY y VONAGE_API_SECRET en .env'
+            });
+        }
+
+        const phoneNumber = req.params.number;
+        
+        // Validar formato
+        if (!/^34\d{9}$/.test(phoneNumber)) {
+            return res.status(400).json({ error: 'Formato inválido (34XXXXXXXXX)' });
+        }
+
+        const result = await VonageService.verifyNumber(phoneNumber);
+        
+        if (result.error) {
+            return res.status(400).json(result);
+        }
+
+        await Logger.log('VONAGE_VERIFY', {
+            phoneNumber,
+            carrierName: result.carrierName,
+            numberType: result.numberType
+        });
+
+        res.json(result);
+    } catch (err) {
+        console.error('Vonage verify error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Comparar BD con Vonage
+app.get('/api/vonage/compare/:number/:dbOperator', async (req, res) => {
+    try {
+        const VonageService = require('./services/vonageService');
+        const { number, dbOperator } = req.params;
+
+        if (!VonageService.isGratisAvailable()) {
+            return res.status(400).json({ 
+                error: 'Vonage no configurado'
+            });
+        }
+
+        const comparison = await VonageService.compareWithDatabase(number, decodeURIComponent(dbOperator));
+        
+        res.json(comparison);
+    } catch (err) {
+        console.error('Vonage compare error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ==================== AUTENTICACIÓN ====================
 
 // Login (generar token)
