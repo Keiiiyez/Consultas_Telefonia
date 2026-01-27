@@ -1,5 +1,5 @@
 # 📱 HDV Contact S.A.C. - Sistema de Consulta de Operadores Telefónicos
-(sistema explicada por una ia pq i cant explain nada ;D)
+(sistema explicado por una ia pq i cant explain nada ;D)
 - Un sistema completo para consultar, gestionar y verificar números telefónicos españoles con detección de operador, portabilidad, spam y análisis avanzado.
 
 ## ✨ Características
