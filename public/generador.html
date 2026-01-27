@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Pro de Números</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-white font-sans">
+
+    <div class="min-h-screen flex flex-col items-center justify-center px-6 py-10">
+        <div class="w-full max-w-2xl bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500">Generador de Números!!</h1>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-slate-400">Cantidad</label>
+                    <input type="number" id="cantidad" 
+                           class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500" 
+                           min="1" max="500000" value="1000">
+                </div>
+                
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-slate-400">Operador</label>
+                    <select id="operador" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500">
+                        <option value="TODOS">Todos (Aleatorio)</option>
+                        <option value="MOVISTAR">Movistar</option>
+                        <option value="VODAFONE">Vodafone</option>
+                        <option value="ORANGE">Orange</option>
+                        <option value="YOIGO">Yoigo</option>
+                        <option value="DIGI">Digi</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mb-6">
+                <button id="generarBtn" 
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> Generar
+                </button>
+                <button id="descargarBtn" disabled
+                        class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-file-csv"></i> Descargar CSV
+                </button>
+            </div>
+
+            <textarea id="resultado" 
+                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none mb-4" 
+                      readonly placeholder="Los números aparecerán aquí..."></textarea>
+
+            <div class="text-center">
+                <p id="contador" class="text-slate-500 text-sm italic">Listo para generar</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const prefijosMapa = {
+        'MOVISTAR': ['600', '609', '619', '629', '630', '639','619','650','659','670','679','696','699'],
+        'VODAFONE': ['607', '608', '610', '617', '627', '640', '649', '660', '669'],
+        'ORANGE':   ['600', '609', '615', '616', '618', '625', '650', '659', '670', '679', '690', '699', '642', '643', '644', '645', '646', '647', '648', '651', '652', '653', '654', '655', '656', '657', '649', '680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '717', '722', '733', '744', '747', '755'],  
+        'YOIGO':    ['622', '633', '645','650', '693'],
+        'DIGI':     ['722'],
+        'TODOS':    ['600', '609', '619', '629', '630', '639','619','650','659','670','679','696','699',
+                     '607', '608', '610', '617', '627', '640', '649', '660', '669',
+                     '615', '616', '618', '625', '642', '643', '644', '645', '646', '647', '648', '651', '652', '653', '654', '655', '656', '657', '680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '717', '722', '733', '744', '747', '755',
+                     '622', '633', '693',
+                     '722']
+    };
+
+    let numerosGenerados = [];
+
+    document.getElementById('generarBtn').addEventListener('click', function() {
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+        const opSeleccionado = document.getElementById('operador').value;
+        const resArea = document.getElementById('resultado');
+        const cont = document.getElementById('contador');
+        const descBtn = document.getElementById('descargarBtn');
+
+        if (cantidad <= 0 || cantidad > 500000) {
+            alert("Ingresa una cantidad entre 1 y 500.000");
+            return;
+        }
+
+        let conjuntoNumeros = new Set();
+        const prefijos = prefijosMapa[opSeleccionado];
+
+        this.innerText = "Procesando...";
+        this.disabled = true;
+
+        setTimeout(() => {
+            while (conjuntoNumeros.size < cantidad) {
+                const pre = prefijos[Math.floor(Math.random() * prefijos.length)];
+
+                const sufijo = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+                conjuntoNumeros.add(pre + sufijo);
+                
+                if (conjuntoNumeros.size >= 1000000) break; 
+            }
+
+            numerosGenerados = Array.from(conjuntoNumeros);
+
+            resArea.value = numerosGenerados.slice(0, 5000).join('\n') + 
+                           (numerosGenerados.length > 5000 ? '\n\n... (Lista completa disponible en el botón Descargar CSV)' : '');
+            
+            cont.innerText = `✅ ${numerosGenerados.length.toLocaleString()} números únicos listos`;
+            descBtn.disabled = false;
+            
+            this.innerText = "Generar";
+            this.disabled = false;
+        }, 100);
+    });
+
+    document.getElementById('descargarBtn').addEventListener('click', function() {
+        if (numerosGenerados.length === 0) return;
+
+        const csvRows = ["Numeros"];
+        numerosGenerados.forEach(n => csvRows.push(n));
+        const csvString = csvRows.join("\n");
+        
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `lista_numeros_${document.getElementById('operador').value.toLowerCase()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    });
+</script>
+</body>
+</html>

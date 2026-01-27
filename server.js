@@ -701,6 +701,62 @@ app.post('/api/admin/bulk-lookup', authenticateAdmin, async (req, res) => {
     }
 });
 
+// Generar números en lote
+
+app.post('/api/admin/numbers/generate', authenticateAdmin, async (req, res) => {
+    try {
+        const { quantity, operator_name, type } = req.body;
+        const db = require('./config/db');
+
+        // Mapa de prefijos oficiales de España
+        const prefijos = {
+            'Movistar': ['600', '610', '620', '660'],
+            'Vodafone': ['607', '617', '657'],
+            'Orange': ['650', '651', '655'],
+            'Yoigo': ['622', '633'],
+            'Digi': ['722']
+        };
+
+        const listaPrefijos = prefijos[operator_name] || ['600'];
+        const values = [];
+
+        for (let i = 0; i < quantity; i++) {
+            const pre = listaPrefijos[Math.floor(Math.random() * listaPrefijos.length)];
+            const sufijo = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            const numFull = BigInt(pre + sufijo);
+            
+            // Estructura: [range_start, range_end, operator_name, type]
+            values.push([numFull, numFull, operator_name, type || 'MOBILE']);
+        }
+
+        // Inserción masiva para alta velocidad
+        await db.query(
+            `INSERT IGNORE INTO numero_ranges (range_start, range_end, operator_name, type) VALUES ?`,
+            [values]
+        );
+
+        res.json({ success: true, message: `${quantity} números generados para ${operator_name}` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Fallo al generar el lote masivo.' });
+    }
+});
+
+// Ruta para obtener los últimos números generados
+app.get('/api/admin/numbers/recent', authenticateAdmin, async (req, res) => {
+    try {
+        const db = require('./config/db');
+        // Traemos los últimos 50 registros para mostrar en la tabla
+        const [rows] = await db.query(
+            'SELECT range_start, operator_name FROM numero_ranges ORDER BY id DESC LIMIT 50'
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al obtener números recientes' });
+    }
+});
+
 // ==================== HEALTH CHECK ====================
 
 app.get('/api/health', (req, res) => {
