@@ -291,7 +291,7 @@
                         <p class="font-semibold mb-2">📝 Formato esperado:</p>
                         <p>• Archivo CSV simple con una columna de números</p>
                         <p>• Cada número en su propia línea o columna</p>
-                        <p>• Ejemplo: <span class="font-mono">34600000000</span></p>
+                        <p>• Ejemplo: <span class="font-mono">600000000</span></p>
                         <p class="text-slate-500 mt-2">✓ Se procesarán hasta 10,000 números a la vez</p>
                     </div>
                 </div>
@@ -1269,7 +1269,7 @@
 
 // ==================== BULK LOOKUP FUNCTIONS (ALTO RENDIMIENTO) ====================
 
-let bulkController = null; // Para poder cancelar la petición
+let bulkController = null;
 
 async function processBulkLookup() {
     const fileInput = document.getElementById('bulk-lookup-file');
@@ -1279,18 +1279,14 @@ async function processBulkLookup() {
 
     if (!fileInput.files[0]) return alert('⚠️ Selecciona un archivo CSV');
 
+    // Mostrar contenedor y limpiar tabla con un loader
     resultsContainer.classList.remove('hidden');
     tableBody.innerHTML = `
         <tr>
             <td colspan="5" class="px-6 py-12 text-center">
-                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500/30 border-t-blue-500 mb-4"></div>
-                <div id="bulk-progress-text" class="text-slate-300 font-bold text-lg">Preparando números...</div>
-                <div id="bulk-progress-bar" class="w-64 h-2 bg-slate-700 rounded-full mx-auto mt-2 overflow-hidden">
-                    <div id="bulk-progress-fill" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
-                </div>
-                <button onclick="cancelBulkLookup()" class="mt-6 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs rounded-lg transition border border-red-500/20">
-                    Detener proceso
-                </button>
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500/30 border-t-blue-500 mb-4"></div>
+                <div id="bulk-live-status" class="text-slate-300 font-bold">Leyendo archivo...</div>
+                <div class="text-xs text-slate-500 mt-2">Esto puede tardar unos segundos para archivos grandes</div>
             </td>
         </tr>`;
 
@@ -1303,31 +1299,29 @@ async function processBulkLookup() {
             const lines = e.target.result.split(/\r?\n/).filter(line => line.trim());
             const allNumbers = [];
 
+            // Limpieza de números
             for (let line of lines) {
                 const cols = line.split(',');
                 if (cols[columnIndex]) {
                     const num = cols[columnIndex].replace(/\D/g, '');
                     if (num.length >= 9) {
-                        const formatted = num.startsWith('34') ? num : '34' + num;
-                        if (/^34\d{9}$/.test(formatted)) allNumbers.push(formatted);
+                        const clean = (num.startsWith('34') && num.length > 9) ? num : '34' + num;
+                        if (/^34\d{9}$/.test(clean)) allNumbers.push(clean);
                     }
                 }
             }
 
             const total = allNumbers.length;
             window.bulkLookupResults = []; 
-            const CHUNK_SIZE = 500; 
+            const CHUNK_SIZE = 1500; // Lote optimizado para 150k
             
-            // --- MEJORA: PROCESAMIENTO TURBO ---
-            // Dividimos los números en todos los lotes necesarios (incluyendo el último)
             const chunks = [];
             for (let i = 0; i < total; i += CHUNK_SIZE) {
                 chunks.push(allNumbers.slice(i, i + CHUNK_SIZE));
             }
 
-            // Procesamos con un límite de concurrencia (3 peticiones simultáneas)
-            // Esto acelera la respuesta sin banear tu IP/Servidor
-            const concurrencyLimit = 3;
+            // Procesamiento en lotes con concurrencia limitada
+            const concurrencyLimit = 2;
             for (let i = 0; i < chunks.length; i += concurrencyLimit) {
                 if (!bulkController) break;
 
@@ -1352,16 +1346,19 @@ async function processBulkLookup() {
                     }
                 });
 
-                // Actualizar barra de progreso y texto
-                const processedSoFar = Math.min(window.bulkLookupResults.length, total);
-                const percent = (processedSoFar / total) * 100;
-                document.getElementById('bulk-progress-fill').style.width = `${percent}%`;
-                document.getElementById('bulk-progress-text').innerText = `Procesado: ${processedSoFar} / ${total}`;
-                updateBulkStats(window.bulkLookupResults.length, processedSoFar);
+                // ACTUALIZACIÓN SEGURA DE ESTADÍSTICAS (Tus IDs actuales)
+                const processedSoFar = window.bulkLookupResults.length;
+                const statusLabel = document.getElementById('bulk-live-status');
+                if (statusLabel) statusLabel.innerText = `Procesando: ${processedSoFar.toLocaleString()} / ${total.toLocaleString()}`;
+
+                updateBulkStats(window.bulkLookupResults.filter(r => r.success).length, processedSoFar);
+                
+                // Renderizado ligero (solo los últimos para no congelar la web)
+                renderFinalTable(window.bulkLookupResults, false);
             }
 
-            renderFinalTable(window.bulkLookupResults);
-            if (bulkController) alert(`✅ ¡Listo! Se procesaron los ${window.bulkLookupResults.length} números.`);
+            renderFinalTable(window.bulkLookupResults, true);
+            if (bulkController) alert(`✅ ¡Listo! ${window.bulkLookupResults.length.toLocaleString()} procesados.`);
 
         } catch (err) {
             if (err.name !== 'AbortError') {
@@ -1375,28 +1372,28 @@ async function processBulkLookup() {
 
     reader.readAsText(file);
 }
-function cancelBulkLookup() {
-    if (bulkController) {
-        bulkController.abort();
-        bulkController = null;
-    }
-}
 
 function updateBulkStats(successCount, totalSoFar) {
-    document.getElementById('bulk-stats-processed').textContent = totalSoFar;
-    document.getElementById('bulk-stats-success').textContent = successCount;
-    document.getElementById('bulk-stats-failed').textContent = totalSoFar - successCount;
+    const s = document.getElementById('bulk-stats-success');
+    const p = document.getElementById('bulk-stats-processed');
+    const f = document.getElementById('bulk-stats-failed');
+    
+    // Verificamos que existan antes de escribir para evitar el error 'null'
+    if(s) s.textContent = successCount.toLocaleString();
+    if(p) p.textContent = totalSoFar.toLocaleString();
+    if(f) f.textContent = (totalSoFar - successCount).toLocaleString();
 }
 
-function renderFinalTable(results) {
+function renderFinalTable(results, isFinal) {
     const tableBody = document.getElementById('bulk-results-table');
-    if (!results.length) return;
+    if (!tableBody || !results.length) return;
 
-    tableBody.innerHTML = results.map(r => {
+    // Solo mostramos los últimos 30 resultados para mantener la fluidez
+    const lastItems = results.slice(-30); 
+
+    const html = lastItems.map(r => {
         const fullNumber = r.number || r.phone_number || '';
-        const displayNumber = (fullNumber.startsWith('34') && fullNumber.length > 9) 
-            ? fullNumber.substring(2) 
-            : fullNumber;
+        const displayNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
 
         return `
             <tr class="border-b border-slate-700/50 hover:bg-slate-800/50 transition">
@@ -1415,74 +1412,50 @@ function renderFinalTable(results) {
                         ${r.success ? '✓' : '✗'}
                     </span>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     }).join('');
+
+    tableBody.innerHTML = html + (results.length > 30 ? 
+        `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500 text-xs italic bg-slate-900/30">
+            ... mostrando últimos 30 de ${results.length.toLocaleString()} (Descarga el CSV para ver todos)
+        </td></tr>` : '');
 }
 
 function exportBulkResults() {
-    if (!window.bulkLookupResults?.length) return alert('No hay datos');
+    if (!window.bulkLookupResults?.length) return alert('No hay datos para exportar');
 
-    const BOM = '\uFEFF';
-    const headers = ['Número', 'Operador', 'Tipo', 'Portado', 'Estado'];
+    const SEPARATOR = ","; 
     
-    const csvContent = [
-        headers.join(','),
-        ...window.bulkLookupResults.map(r => {
-            const fullNumber = r.number || r.phone_number || '';
-            
-            const cleanNumber = (fullNumber.startsWith('34') && fullNumber.length > 9) 
-                ? fullNumber.substring(2) 
-                : fullNumber;
+    const headers = ['Numeros', 'Operador', 'Tipo', 'Portado', 'Estado'];
+    let csvContent = `sep=${SEPARATOR}\n` + headers.join(SEPARATOR) + '\n';
 
-            return [
-                cleanNumber,
-                `"${r.operator || 'Desconocido'}"`,
-                r.type || 'MOBILE',
-                r.ported ? 'Si' : 'No',
-                r.success ? 'OK' : 'Error'
-            ].join(',');
-        })
-    ].join('\n');
+    const rows = window.bulkLookupResults.map(r => {
+        const fullNumber = r.number || r.phone_number || '';
+        const cleanNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
+        
+        return [
+            `="${cleanNumber}"`, 
+            `"${r.operator || 'Desconocido'}"`,
+            r.type || 'MOBILE',
+            r.ported ? 'Si' : 'No',
+            r.success ? 'OK' : 'Error'
+        ].join(SEPARATOR);
+    });
 
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    csvContent += rows.join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Reporte_Listo${new Date().getTime()}.csv`;
+    link.href = url;
+    link.download = `Reporte_Final_${new Date().getTime()}.csv`;
+    
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
-    async function loadRecentNumbers() {
-        try {
-            const token = localStorage.getItem('adminToken');
-            const response = await fetch('/api/admin/numbers/recent', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            
-            const list = document.getElementById('numbers-list');
-            if (data.length === 0) {
-                list.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">No hay números agregados aún</td></tr>';
-            } else {
-                list.innerHTML = data.map(n => `
-                    <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
-                        <td class="px-6 py-4 font-mono text-sm">${n.phone_number || n.range_start}</td>
-                        <td class="px-6 py-4 font-semibold">${n.operator_name}</td>
-                        <td class="px-6 py-4 text-slate-400">${n.type || 'N/A'}</td>
-                        <td class="px-6 py-4 text-slate-400 text-sm">${new Date(n.created_at).toLocaleDateString('es-ES')}</td>
-                    </tr>
-                `).join('');
-            }
-        } catch (err) {
-            console.error('Error loading numbers:', err);
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('rememberAdmin');
-        window.location.href = '/admin-login.html';
-    }
-
     // Vonage Functions
     async function verifyWithVonage() {
         const number = document.getElementById('vonage-number').value.trim();

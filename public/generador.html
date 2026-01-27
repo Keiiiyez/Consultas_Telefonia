@@ -104,7 +104,7 @@
             resArea.value = numerosGenerados.slice(0, 5000).join('\n') + 
                            (numerosGenerados.length > 5000 ? '\n\n... (Lista completa disponible en el botón Descargar CSV)' : '');
             
-            cont.innerText = `✅ ${numerosGenerados.length.toLocaleString()} números únicos listos`;
+            cont.innerText = `${numerosGenerados.length.toLocaleString()} números únicos listos`;
             descBtn.disabled = false;
             
             this.innerText = "Generar";
