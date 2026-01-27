@@ -1456,182 +1456,182 @@ function exportBulkResults() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
-    // Vonage Functions
-    async function verifyWithVonage() {
-        const number = document.getElementById('vonage-number').value.trim();
+    //
+//    async function verifyWithVonage() {
+//        const number = document.getElementById('vonage-number').value.trim();
+//        
+//        if (!number) {
+//            alert('Ingresa un número');
+//            return;
+//        }
+
+//        if (!/^34\d{9}$/.test(number)) {
+//            alert('Formato inválido. Usa: 34XXXXXXXXX');
+//            return;
+//        }
+
+//        try {
+//            const token = localStorage.getItem('adminToken');
+//            const response = await fetch(`/api/vonage/verify/${number}`, {
+//                headers: { 'Authorization': `Bearer ${token}` }
+//            });
+//            const data = await response.json();
+//
+//            if (data.success) {
+//                document.getElementById('vonage-intl').textContent = data.international_format_number || number;
+//                document.getElementById('vonage-carrier').textContent = data.carrier_name || 'Desconocido';
+//                document.getElementById('vonage-type').textContent = data.line_type || 'Desconocido';
+//                document.getElementById('vonage-country').textContent = data.country || 'España';
+//                document.getElementById('vonage-result').classList.remove('hidden');
+//            } else {
+//                alert('Error verificando número con Vonage');
+//            }
+//        } catch (err) {
+//            alert('Error: ' + err.message);
+//        }
+//    }
+
+//    async function compareWithVonage() {
+//        const number = document.getElementById('compare-number').value.trim();
+//        const operator = document.getElementById('compare-operator').value.trim();
         
-        if (!number) {
-            alert('Ingresa un número');
-            return;
-        }
+//        if (!number || !operator) {
+//            alert('Completa ambos campos');
+//            return;
+//        }
 
-        if (!/^34\d{9}$/.test(number)) {
-            alert('Formato inválido. Usa: 34XXXXXXXXX');
-            return;
-        }
+//        if (!/^34\d{9}$/.test(number)) {
+//            alert('Formato inválido. Usa: 34XXXXXXXXX');
+//            return;
+//        }
 
-        try {
-            const token = localStorage.getItem('adminToken');
-            const response = await fetch(`/api/vonage/verify/${number}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                document.getElementById('vonage-intl').textContent = data.international_format_number || number;
-                document.getElementById('vonage-carrier').textContent = data.carrier_name || 'Desconocido';
-                document.getElementById('vonage-type').textContent = data.line_type || 'Desconocido';
-                document.getElementById('vonage-country').textContent = data.country || 'España';
-                document.getElementById('vonage-result').classList.remove('hidden');
-            } else {
-                alert('Error verificando número con Vonage');
-            }
-        } catch (err) {
-            alert('Error: ' + err.message);
-        }
-    }
+//        try {
+//            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
+//            const data = await response.json();
 
-    async function compareWithVonage() {
-        const number = document.getElementById('compare-number').value.trim();
-        const operator = document.getElementById('compare-operator').value.trim();
-        
-        if (!number || !operator) {
-            alert('Completa ambos campos');
-            return;
-        }
+//            if (data.error) {
+//                alert('Error: ' + data.error);
+//                document.getElementById('compare-result').classList.add('hidden');
+//                return;
+//            }
 
-        if (!/^34\d{9}$/.test(number)) {
-            alert('Formato inválido. Usa: 34XXXXXXXXX');
-            return;
-        }
-
-        try {
-            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
-            const data = await response.json();
-
-            if (data.error) {
-                alert('Error: ' + data.error);
-                document.getElementById('compare-result').classList.add('hidden');
-                return;
-            }
-
-            if (!data.compared) {
-                alert('No se pudo realizar la comparación: ' + data.vonageError);
-                return;
-            }
+//            if (!data.compared) {
+//                alert('No se pudo realizar la comparación: ' + data.vonageError);
+//                return;
+//            }
 
             // Mostrar resultados
-            document.getElementById('compare-bd').textContent = operator;
-            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
-            document.getElementById('compare-status').textContent = data.match ? 
-                '✅ Coinciden' : '⚠️ Discrepancia detectada';
+//            document.getElementById('compare-bd').textContent = operator;
+//            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
+//            document.getElementById('compare-status').textContent = data.match ? 
+//                '✅ Coinciden' : '⚠️ Discrepancia detectada';
 
             // Color según resultado
-            if (!data.match) {
-                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
-                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
-                document.getElementById('compare-recommendation').classList.remove('hidden');
-            } else {
-                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
-                document.getElementById('compare-recommendation').classList.add('hidden');
-            }
+//            if (!data.match) {
+//                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
+//                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
+//                document.getElementById('compare-recommendation').classList.remove('hidden');
+//            } else {
+//                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
+//                document.getElementById('compare-recommendation').classList.add('hidden');
+//            }
 
-            document.getElementById('compare-result').classList.remove('hidden');
-        } catch (err) {
-            alert('Error: ' + err.message);
-        }
-    }
+//            document.getElementById('compare-result').classList.remove('hidden');
+//        } catch (err) {
+//            alert('Error: ' + err.message);
+//        }
+//    }
 
-    function logout() {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('rememberAdmin');
-        window.location.href = '/admin-login.html';
-    }
+//    function logout() {
+//        localStorage.removeItem('adminToken');
+//        localStorage.removeItem('rememberAdmin');
+//        window.location.href = '/admin-login.html';
+//    }
 
     // Vonage Functions
-    async function verifyWithVonage() {
-        const number = document.getElementById('vonage-number').value.trim();
+//    async function verifyWithVonage() {
+//        const number = document.getElementById('vonage-number').value.trim();
         
-        if (!number) {
-            alert('Ingresa un número');
-            return;
-        }
+//        if (!number) {
+//            alert('Ingresa un número');
+//            return;
+//        }
 
-        if (!/^34\d{9}$/.test(number)) {
-            alert('Formato inválido. Usa: 34XXXXXXXXX');
-            return;
-        }
+//        if (!/^34\d{9}$/.test(number)) {
+//            alert('Formato inválido. Usa: 34XXXXXXXXX');
+//            return;
+//        }
 
-        try {
-            const response = await fetch(`/api/vonage/verify/${number}`);
-            const data = await response.json();
+//        try {
+//            const response = await fetch(`/api/vonage/verify/${number}`);
+//            const data = await response.json();
 
-            if (data.error) {
-                alert('Error: ' + data.error);
-                document.getElementById('vonage-result').classList.add('hidden');
-                return;
-            }
+//            if (data.error) {
+//                alert('Error: ' + data.error);
+//               document.getElementById('vonage-result').classList.add('hidden');
+//                return;
+//            }
 
             // Mostrar resultados
-            document.getElementById('vonage-intl').textContent = data.internationalFormat || '-';
-            document.getElementById('vonage-carrier').textContent = data.carrierName || 'Desconocido';
-            document.getElementById('vonage-type').textContent = data.numberType || '-';
-            document.getElementById('vonage-country').textContent = data.countryName || '-';
-            document.getElementById('vonage-result').classList.remove('hidden');
-        } catch (err) {
-            alert('Error conectando con Vonage: ' + err.message);
-        }
-    }
+//           document.getElementById('vonage-intl').textContent = data.internationalFormat || '-';
+//            document.getElementById('vonage-carrier').textContent = data.carrierName || 'Desconocido';
+//            document.getElementById('vonage-type').textContent = data.numberType || '-';
+//            document.getElementById('vonage-country').textContent = data.countryName || '-';
+//            document.getElementById('vonage-result').classList.remove('hidden');
+//        } catch (err) {
+//            alert('Error conectando con Vonage: ' + err.message);
+//        }
+//    }
 
-    async function compareWithVonage() {
-        const number = document.getElementById('compare-number').value.trim();
-        const operator = document.getElementById('compare-operator').value.trim();
+//    async function compareWithVonage() {
+//        const number = document.getElementById('compare-number').value.trim();
+//        const operator = document.getElementById('compare-operator').value.trim();
         
-        if (!number || !operator) {
-            alert('Completa ambos campos');
-            return;
-        }
+//        if (!number || !operator) {
+//            alert('Completa ambos campos');
+//            return;
+//        }
 
-        if (!/^34\d{9}$/.test(number)) {
-            alert('Formato inválido. Usa: 34XXXXXXXXX');
-            return;
-        }
+//        if (!/^34\d{9}$/.test(number)) {
+//            alert('Formato inválido. Usa: 34XXXXXXXXX');
+//            return;
+//        }
 
-        try {
-            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
-            const data = await response.json();
+//        try {
+//            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
+//            const data = await response.json();
 
-            if (data.error) {
-                alert('Error: ' + data.error);
-                document.getElementById('compare-result').classList.add('hidden');
-                return;
-            }
+//            if (data.error) {
+//                alert('Error: ' + data.error);
+//                document.getElementById('compare-result').classList.add('hidden');
+//                return;
+//            }
 
-            if (!data.compared) {
-                alert('No se pudo realizar la comparación: ' + data.vonageError);
-                return;
-            }
-
-            document.getElementById('compare-bd').textContent = operator;
-            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
-            document.getElementById('compare-status').textContent = data.match ? 
-                '✅ Coinciden' : '⚠️ Discrepancia detectada';
-
-            if (!data.match) {
-                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
-                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
-                document.getElementById('compare-recommendation').classList.remove('hidden');
-            } else {
-                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
-                document.getElementById('compare-recommendation').classList.add('hidden');
-            }
-
-            document.getElementById('compare-result').classList.remove('hidden');
-        } catch (err) {
-            alert('Error: ' + err.message);
-        }
-    }
-
+//            if (!data.compared) {
+//                alert('No se pudo realizar la comparación: ' + data.vonageError);
+//                return;
+//            }
+//
+//            document.getElementById('compare-bd').textContent = operator;
+//            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
+//            document.getElementById('compare-status').textContent = data.match ? 
+//                '✅ Coinciden' : '⚠️ Discrepancia detectada';
+//
+//            if (!data.match) {
+//                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
+//                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
+//                document.getElementById('compare-recommendation').classList.remove('hidden');
+//            } else {
+//                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
+//                document.getElementById('compare-recommendation').classList.add('hidden');
+//            }
+//
+//            document.getElementById('compare-result').classList.remove('hidden');
+//        } catch (err) {
+//           alert('Error: ' + err.message);
+//        }
+//    }
+//
 
 </script>
 
