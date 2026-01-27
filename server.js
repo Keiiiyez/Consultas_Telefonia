@@ -6,7 +6,9 @@ const RateLimiter = require('./services/rateLimiter');
 const { Logger, PortingService, SpamService, NumberInfoService, AnalyticsService } = require('./services/advancedServices');
 
 const app = express();
-app.use(express.json());
+// Aumentar límite de payload para bulk uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.text({ limit: '50mb' }));
 app.use(express.static('public'));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta_super_segura_2026';
@@ -638,6 +640,62 @@ app.patch('/api/admin/keys/:id/toggle', authenticateAdmin, async (req, res) => {
         await Logger.log('API_KEY_TOGGLED', { keyId: req.params.id, active: isActive });
         
         res.json({ success: true, message: `API Key ${isActive ? 'activada' : 'desactivada'}` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ==================== BULK LOOKUP ====================
+
+// Búsqueda en lote (CSV)
+app.post('/api/admin/bulk-lookup', authenticateAdmin, async (req, res) => {
+    try {
+        const { numbers } = req.body;
+        const db = require('./config/db'); // Asegúrate de tener acceso a db
+        
+        if (!Array.isArray(numbers) || numbers.length === 0) {
+            return res.status(400).json({ error: 'Array de números requerido' });
+        }
+
+        const results = [];
+        
+        for (const fullNumber of numbers) {
+            try {
+                // 1. Limpiar el número (quitar '34' para coincidir con range_start en tu DB)
+                const cleanNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
+                const phoneInt = BigInt(cleanNumber);
+
+                // 2. Consultar en la tabla de rangos que creaste en SQL
+                const [rows] = await db.query(
+                    `SELECT operator_name, type FROM numero_ranges 
+                     WHERE ? BETWEEN range_start AND range_end LIMIT 1`,
+                    [phoneInt]
+                );
+
+                if (rows.length > 0) {
+                    results.push({
+                        number: fullNumber,
+                        operator: rows[0].operator_name, // Coincide con lo que espera el cliente
+                        success: true,
+                        type: rows[0].type || 'MOBILE',
+                        ported: false
+                    });
+                } else {
+                    // Si no está en rangos, podrías intentar HLR o Vonage aquí
+                    results.push({
+                        number: fullNumber,
+                        operator: 'No encontrado',
+                        success: false,
+                        type: 'N/A'
+                    });
+                }
+            } catch (err) {
+                results.push({ number: fullNumber, operator: 'Error', success: false });
+            }
+        }
+
+        res.json({ success: true, results });
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

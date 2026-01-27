@@ -266,6 +266,70 @@
 
             <!-- Numbers Tab -->
             <div id="numbers-tab" class="tab-content">
+                <!-- Búsqueda en Lote -->
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mb-8">
+                    <h3 class="text-lg font-bold mb-4">🔍 Búsqueda en Lote (Bulk Lookup)</h3>
+                    <p class="text-sm text-slate-400 mb-4">Carga un CSV con números, obtén sus operadores sin guardar en BD</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Archivo CSV</label>
+                            <input type="file" id="bulk-lookup-file" accept=".csv" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-slate-300 file:bg-blue-600 file:border-0 file:px-3 file:py-2 file:rounded file:mr-3 file:text-white file:cursor-pointer hover:file:bg-blue-700">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Columna con números</label>
+                            <input type="number" id="bulk-column-index" placeholder="1" value="1" min="1" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="processBulkLookup()" class="w-full px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg font-semibold transition">
+                                <i class="fa-solid fa-magnifying-glass mr-2"></i>Procesar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 bg-slate-900/50 border border-slate-600 rounded p-3 text-xs text-slate-400">
+                        <p class="font-semibold mb-2">📝 Formato esperado:</p>
+                        <p>• Archivo CSV simple con una columna de números</p>
+                        <p>• Cada número en su propia línea o columna</p>
+                        <p>• Ejemplo: <span class="font-mono">34600000000</span></p>
+                        <p class="text-slate-500 mt-2">✓ Se procesarán hasta 10,000 números a la vez</p>
+                    </div>
+                </div>
+
+                <!-- Resultados Bulk Lookup -->
+                <div id="bulk-results" class="hidden bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden mb-8">
+                    <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="text-lg font-bold">📊 Resultados de Búsqueda</h3>
+                        <div class="flex gap-2">
+                            <button onclick="exportBulkResults()" class="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 rounded transition">
+                                <i class="fa-solid fa-download mr-1"></i>Descargar CSV
+                            </button>
+                            <button onclick="document.getElementById('bulk-results').classList.add('hidden')" class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded transition">
+                                <i class="fa-solid fa-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 bg-slate-900">
+                                    <th class="px-6 py-4 text-left">Número</th>
+                                    <th class="px-6 py-4 text-left">Operador</th>
+                                    <th class="px-6 py-4 text-left">Tipo</th>
+                                    <th class="px-6 py-4 text-left">Portado</th>
+                                    <th class="px-6 py-4 text-left">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulk-results-table">
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-700 bg-slate-900/50">
+                        <p class="text-sm text-slate-400">Procesados: <span id="bulk-stats-processed" class="font-bold text-blue-400">0</span> | Exitosos: <span id="bulk-stats-success" class="font-bold text-green-400">0</span> | Fallidos: <span id="bulk-stats-failed" class="font-bold text-red-400">0</span></p>
+                    </div>
+                </div>
+
                 <!-- Subir CSV -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
@@ -913,7 +977,12 @@
                 list.innerHTML = data.map(k => `
                     <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
                         <td class="px-6 py-4 font-semibold">${k.user_name || 'Sin nombre'}</td>
-                        <td class="px-6 py-4 font-mono text-xs">${k.api_key.substring(0, 20)}...</td>
+                        <td class="px-6 py-4 font-mono text-xs flex items-center gap-2">
+                            <span>${k.api_key.substring(0, 20)}...</span>
+                            <button onclick="copyToClipboard('${k.api_key}')" class="px-2 py-1 text-xs bg-blue-600/30 text-blue-400 hover:bg-blue-600/50 rounded transition" title="Copiar API Key completa">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </td>
                         <td class="px-6 py-4 text-slate-400">${k.requests_used} / ${k.requests_limit}</td>
                         <td class="px-6 py-4">
                             <span class="px-2 py-1 text-xs rounded ${k.is_active ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}">
@@ -958,7 +1027,8 @@
             
             const result = await response.json();
             if (response.ok) {
-                alert(`✓ API Key creada:\n\n${result.apiKey}\n\n⚠️ Guárdala en un lugar seguro`);
+                const fullKey = result.apiKey;
+                showApiKeyModal(fullKey, userName);
                 document.getElementById('key-user-name').value = '';
                 document.getElementById('key-limit').value = '10000';
                 loadApiKeys();
@@ -968,6 +1038,47 @@
         } catch (err) {
             alert(`Error: ${err.message}`);
         }
+    }
+
+    function showApiKeyModal(apiKey, userName) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-slate-900 border border-slate-700 rounded-lg p-8 max-w-md w-full mx-4">
+                <h2 class="text-2xl font-bold mb-4">✓ API Key Creada</h2>
+                <p class="text-slate-300 mb-4">Tu nueva API Key para <strong>${userName}</strong>:</p>
+                
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4">
+                    <div class="font-mono text-sm text-blue-400 break-all">${apiKey}</div>
+                </div>
+                
+                <div class="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4 mb-6">
+                    <p class="text-sm text-yellow-200">
+                        <strong>⚠️ Importante:</strong> Copia y guarda esta clave en un lugar seguro. 
+                        No podrás verla de nuevo.
+                    </p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="copyToClipboard('${apiKey}')" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition">
+                        <i class="fa-solid fa-copy mr-2"></i>Copiar
+                    </button>
+                    <button onclick="this.closest('.fixed').remove()" class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded font-semibold transition">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✓ Copiado al portapapeles');
+        }).catch(err => {
+            alert('Error al copiar: ' + err);
+        });
+
     }
 
     async function deleteApiKey(id) {
@@ -1136,7 +1247,217 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
+            
+            const list = document.getElementById('numbers-list');
+            if (!data || data.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Sin números agregados recientemente</td></tr>';
+            } else {
+                list.innerHTML = data.map(n => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                        <td class="px-6 py-4 font-mono">${n.phone_number}</td>
+                        <td class="px-6 py-4">${n.operator_name}</td>
+                        <td class="px-6 py-4">${n.type}</td>
+                        <td class="px-6 py-4 text-slate-400 text-sm">${new Date(n.created_at).toLocaleDateString('es-ES')}</td>
+                    </tr>
+                `).join('');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+        }
+    }
 
+// ==================== BULK LOOKUP FUNCTIONS (ALTO RENDIMIENTO) ====================
+
+let bulkController = null; // Para poder cancelar la petición
+
+async function processBulkLookup() {
+    const fileInput = document.getElementById('bulk-lookup-file');
+    const columnIndex = parseInt(document.getElementById('bulk-column-index').value) - 1;
+    const tableBody = document.getElementById('bulk-results-table');
+    const resultsContainer = document.getElementById('bulk-results');
+
+    if (!fileInput.files[0]) return alert('⚠️ Selecciona un archivo CSV');
+
+    resultsContainer.classList.remove('hidden');
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="5" class="px-6 py-12 text-center">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500/30 border-t-blue-500 mb-4"></div>
+                <div id="bulk-progress-text" class="text-slate-300 font-bold text-lg">Preparando números...</div>
+                <div id="bulk-progress-bar" class="w-64 h-2 bg-slate-700 rounded-full mx-auto mt-2 overflow-hidden">
+                    <div id="bulk-progress-fill" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+                <button onclick="cancelBulkLookup()" class="mt-6 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs rounded-lg transition border border-red-500/20">
+                    Detener proceso
+                </button>
+            </td>
+        </tr>`;
+
+    bulkController = new AbortController();
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        try {
+            const lines = e.target.result.split(/\r?\n/).filter(line => line.trim());
+            const allNumbers = [];
+
+            for (let line of lines) {
+                const cols = line.split(',');
+                if (cols[columnIndex]) {
+                    const num = cols[columnIndex].replace(/\D/g, '');
+                    if (num.length >= 9) {
+                        const formatted = num.startsWith('34') ? num : '34' + num;
+                        if (/^34\d{9}$/.test(formatted)) allNumbers.push(formatted);
+                    }
+                }
+            }
+
+            const total = allNumbers.length;
+            window.bulkLookupResults = []; 
+            const CHUNK_SIZE = 500; 
+            
+            // --- MEJORA: PROCESAMIENTO TURBO ---
+            // Dividimos los números en todos los lotes necesarios (incluyendo el último)
+            const chunks = [];
+            for (let i = 0; i < total; i += CHUNK_SIZE) {
+                chunks.push(allNumbers.slice(i, i + CHUNK_SIZE));
+            }
+
+            // Procesamos con un límite de concurrencia (3 peticiones simultáneas)
+            // Esto acelera la respuesta sin banear tu IP/Servidor
+            const concurrencyLimit = 3;
+            for (let i = 0; i < chunks.length; i += concurrencyLimit) {
+                if (!bulkController) break;
+
+                const currentBatch = chunks.slice(i, i + concurrencyLimit);
+                const promises = currentBatch.map(chunk => 
+                    fetch('/api/admin/bulk-lookup', {
+                        method: 'POST',
+                        signal: bulkController.signal,
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ numbers: chunk })
+                    }).then(res => res.ok ? res.json() : null)
+                );
+
+                const results = await Promise.all(promises);
+                
+                results.forEach(data => {
+                    if (data && data.results) {
+                        window.bulkLookupResults.push(...data.results);
+                    }
+                });
+
+                // Actualizar barra de progreso y texto
+                const processedSoFar = Math.min(window.bulkLookupResults.length, total);
+                const percent = (processedSoFar / total) * 100;
+                document.getElementById('bulk-progress-fill').style.width = `${percent}%`;
+                document.getElementById('bulk-progress-text').innerText = `Procesado: ${processedSoFar} / ${total}`;
+                updateBulkStats(window.bulkLookupResults.length, processedSoFar);
+            }
+
+            renderFinalTable(window.bulkLookupResults);
+            if (bulkController) alert(`✅ ¡Listo! Se procesaron los ${window.bulkLookupResults.length} números.`);
+
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error(err);
+                tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Error: ${err.message}</td></tr>`;
+            }
+        } finally {
+            bulkController = null;
+        }
+    };
+
+    reader.readAsText(file);
+}
+function cancelBulkLookup() {
+    if (bulkController) {
+        bulkController.abort();
+        bulkController = null;
+    }
+}
+
+function updateBulkStats(successCount, totalSoFar) {
+    document.getElementById('bulk-stats-processed').textContent = totalSoFar;
+    document.getElementById('bulk-stats-success').textContent = successCount;
+    document.getElementById('bulk-stats-failed').textContent = totalSoFar - successCount;
+}
+
+function renderFinalTable(results) {
+    const tableBody = document.getElementById('bulk-results-table');
+    if (!results.length) return;
+
+    tableBody.innerHTML = results.map(r => {
+        const fullNumber = r.number || r.phone_number || '';
+        const displayNumber = (fullNumber.startsWith('34') && fullNumber.length > 9) 
+            ? fullNumber.substring(2) 
+            : fullNumber;
+
+        return `
+            <tr class="border-b border-slate-700/50 hover:bg-slate-800/50 transition">
+                <td class="px-6 py-3 font-mono text-blue-300 text-xs">${displayNumber}</td>
+                <td class="px-6 py-3">
+                    <span class="font-bold text-slate-200">${r.operator || 'Desconocido'}</span>
+                </td>
+                <td class="px-6 py-3 text-slate-500 text-xs">${r.type || 'MOBILE'}</td>
+                <td class="px-6 py-3">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] ${r.ported ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-slate-700/30 text-slate-500'}">
+                        ${r.ported ? 'PORTADO' : 'ORIGINAL'}
+                    </span>
+                </td>
+                <td class="px-6 py-3 text-right">
+                    <span class="${r.success ? 'text-green-500' : 'text-red-500'} font-bold">
+                        ${r.success ? '✓' : '✗'}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function exportBulkResults() {
+    if (!window.bulkLookupResults?.length) return alert('No hay datos');
+
+    const BOM = '\uFEFF';
+    const headers = ['Número', 'Operador', 'Tipo', 'Portado', 'Estado'];
+    
+    const csvContent = [
+        headers.join(','),
+        ...window.bulkLookupResults.map(r => {
+            const fullNumber = r.number || r.phone_number || '';
+            
+            const cleanNumber = (fullNumber.startsWith('34') && fullNumber.length > 9) 
+                ? fullNumber.substring(2) 
+                : fullNumber;
+
+            return [
+                cleanNumber,
+                `"${r.operator || 'Desconocido'}"`,
+                r.type || 'MOBILE',
+                r.ported ? 'Si' : 'No',
+                r.success ? 'OK' : 'Error'
+            ].join(',');
+        })
+    ].join('\n');
+
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Reporte_Listo${new Date().getTime()}.csv`;
+    link.click();
+}
+    async function loadRecentNumbers() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/numbers/recent', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
             const list = document.getElementById('numbers-list');
             if (data.length === 0) {
                 list.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">No hay números agregados aún</td></tr>';
@@ -1152,6 +1473,98 @@
             }
         } catch (err) {
             console.error('Error loading numbers:', err);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('rememberAdmin');
+        window.location.href = '/admin-login.html';
+    }
+
+    // Vonage Functions
+    async function verifyWithVonage() {
+        const number = document.getElementById('vonage-number').value.trim();
+        
+        if (!number) {
+            alert('Ingresa un número');
+            return;
+        }
+
+        if (!/^34\d{9}$/.test(number)) {
+            alert('Formato inválido. Usa: 34XXXXXXXXX');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`/api/vonage/verify/${number}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('vonage-intl').textContent = data.international_format_number || number;
+                document.getElementById('vonage-carrier').textContent = data.carrier_name || 'Desconocido';
+                document.getElementById('vonage-type').textContent = data.line_type || 'Desconocido';
+                document.getElementById('vonage-country').textContent = data.country || 'España';
+                document.getElementById('vonage-result').classList.remove('hidden');
+            } else {
+                alert('Error verificando número con Vonage');
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    }
+
+    async function compareWithVonage() {
+        const number = document.getElementById('compare-number').value.trim();
+        const operator = document.getElementById('compare-operator').value.trim();
+        
+        if (!number || !operator) {
+            alert('Completa ambos campos');
+            return;
+        }
+
+        if (!/^34\d{9}$/.test(number)) {
+            alert('Formato inválido. Usa: 34XXXXXXXXX');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert('Error: ' + data.error);
+                document.getElementById('compare-result').classList.add('hidden');
+                return;
+            }
+
+            if (!data.compared) {
+                alert('No se pudo realizar la comparación: ' + data.vonageError);
+                return;
+            }
+
+            // Mostrar resultados
+            document.getElementById('compare-bd').textContent = operator;
+            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
+            document.getElementById('compare-status').textContent = data.match ? 
+                '✅ Coinciden' : '⚠️ Discrepancia detectada';
+
+            // Color según resultado
+            if (!data.match) {
+                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
+                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
+                document.getElementById('compare-recommendation').classList.remove('hidden');
+            } else {
+                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
+                document.getElementById('compare-recommendation').classList.add('hidden');
+            }
+
+            document.getElementById('compare-result').classList.remove('hidden');
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
     }
 
@@ -1225,13 +1638,11 @@
                 return;
             }
 
-            // Mostrar resultados
             document.getElementById('compare-bd').textContent = operator;
             document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
             document.getElementById('compare-status').textContent = data.match ? 
                 '✅ Coinciden' : '⚠️ Discrepancia detectada';
 
-            // Color según resultado
             if (!data.match) {
                 document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
                 document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
