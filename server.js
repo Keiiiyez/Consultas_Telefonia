@@ -651,7 +651,7 @@ app.patch('/api/admin/keys/:id/toggle', authenticateAdmin, async (req, res) => {
 app.post('/api/admin/bulk-lookup', authenticateAdmin, async (req, res) => {
     try {
         const { numbers } = req.body;
-        const db = require('./config/db'); // Asegúrate de tener acceso a db
+        const db = require('./config/db'); // Conexión a la base de datos
         
         if (!Array.isArray(numbers) || numbers.length === 0) {
             return res.status(400).json({ error: 'Array de números requerido' });
@@ -661,11 +661,11 @@ app.post('/api/admin/bulk-lookup', authenticateAdmin, async (req, res) => {
         
         for (const fullNumber of numbers) {
             try {
-                // 1. Limpiar el número (quitar '34' para coincidir con range_start en tu DB)
+
                 const cleanNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
                 const phoneInt = BigInt(cleanNumber);
 
-                // 2. Consultar en la tabla de rangos que creaste en SQL
+               
                 const [rows] = await db.query(
                     `SELECT operator_name, type FROM numero_ranges 
                      WHERE ? BETWEEN range_start AND range_end LIMIT 1`,
@@ -675,7 +675,7 @@ app.post('/api/admin/bulk-lookup', authenticateAdmin, async (req, res) => {
                 if (rows.length > 0) {
                     results.push({
                         number: fullNumber,
-                        operator: rows[0].operator_name, // Coincide con lo que espera el cliente
+                        operator: rows[0].operator_name,  
                         success: true,
                         type: rows[0].type || 'MOBILE',
                         ported: false
@@ -774,14 +774,14 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`
-╔════════════════════════════════════════╗
-║    🚀 Telco Lookup Server Activo       ║
-╠════════════════════════════════════════╣
-║  🌐 Web: http://localhost:${PORT}/
-║  🔐 Login: http://localhost:${PORT}/admin-login.html
-║  🔧 API: http://localhost:${PORT}/api/health
-║  📊 Dashboard: http://localhost:${PORT}/admin.html
-╚════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════╗
+║    🚀 Telco Lookup Server Activo                         ║        
+╠══════════════════════════════════════════════════════════╣
+║  🌐 Web: http://localhost:${PORT}/                       ║
+║  🔐 Login: http://localhost:${PORT}/admin-login.html     ║
+║  🔧 API: http://localhost:${PORT}/api/health             ║
+║  📊 Dashboard: http://localhost:${PORT}/admin.html       ║
+╚══════════════════════════════════════════════════════════╝
     `);
     
     Logger.log('SERVER_STARTED', { port: PORT });

@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS telco_lookup;
 USE telco_lookup;
 
--- Tabla de rangos de números (más eficiente)
 CREATE TABLE numero_ranges (
     id INT AUTO_INCREMENT PRIMARY KEY,
     range_start BIGINT NOT NULL,
@@ -16,7 +15,6 @@ CREATE TABLE numero_ranges (
     INDEX idx_operator (operator_name)
 );
 
--- Tabla de caché para búsquedas específicas (para ahorrar tiempo)
 CREATE TABLE operators_cache (
     id INT AUTO_INCREMENT PRIMARY KEY,
     phone_number VARCHAR(15) UNIQUE NOT NULL,
@@ -27,7 +25,6 @@ CREATE TABLE operators_cache (
     INDEX (phone_number)
 );
 
--- Tabla de portabilidad (números que cambiaron de operador)
 CREATE TABLE ported_numbers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     phone_number VARCHAR(15) UNIQUE NOT NULL,
@@ -39,7 +36,6 @@ CREATE TABLE ported_numbers (
     INDEX idx_operators (original_operator, current_operator)
 );
 
--- Tabla de historial de búsquedas
 CREATE TABLE search_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
     phone_number VARCHAR(15) NOT NULL,
@@ -54,7 +50,6 @@ CREATE TABLE search_history (
     INDEX idx_operator (operator_found)
 );
 
--- Tabla de spam/números sospechosos
 CREATE TABLE spam_numbers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     phone_number VARCHAR(15) UNIQUE NOT NULL,
@@ -67,7 +62,6 @@ CREATE TABLE spam_numbers (
     INDEX idx_score (spam_score)
 );
 
--- Tabla de API keys para control de acceso
 CREATE TABLE api_keys (
     id INT AUTO_INCREMENT PRIMARY KEY,
     api_key VARCHAR(255) UNIQUE NOT NULL,
@@ -80,7 +74,6 @@ CREATE TABLE api_keys (
     INDEX idx_key (api_key)
 );
 
--- Tabla de logs
 CREATE TABLE activity_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     action VARCHAR(100),
