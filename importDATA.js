@@ -5,27 +5,25 @@ const db = require('./config/db');
 async function importarRangos() {
     console.log("Iniciando importación de rangos CNMC...");
     
-    try {
-        fs.createReadStream('rangos_cnmc.csv') 
-            .pipe(csv({ separator: ';' })) 
-            .on('data', async (row) => {
-                try {
-                    
-                    await db.query(
-                        "INSERT INTO rangos_iniciales (inicio, fin, operador) VALUES (?, ?, ?)",
-                        [row.RANGO_INICIAL, row.RANGO_FINAL, row.OPERADOR]
-                    );
-                } catch (err) {
-                }
-            })
-            .on('end', () => {
-                console.log("Importación finalizada con éxito.");
-                process.exit();
-            });
-    } catch (error) {
-        console.error("Error iniciando importación:", error.message);
-        process.exit(1);
+
+    const stream = fs.createReadStream('rangos_cnmc.csv')
+        .pipe(csv({ separator: ';' }));
+
+    for await (const row of stream) {
+        try {
+            if (row.RANGO_INICIAL && row.RANGO_FINAL && row.OPERADOR) {
+                await db.query(
+                    "INSERT INTO rangos_iniciales (inicio, fin, operador) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE operador = VALUES(operador)",
+                    [row.RANGO_INICIAL, row.RANGO_FINAL, row.OPERADOR]
+                );
+            }
+        } catch (err) {
+            console.error(` Error en rango ${row.RANGO_INICIAL}:`, err.message);
+        }
     }
+
+    console.log("Importación finalizada con éxito.");
+    process.exit(0);
 }
 
 importarRangos();

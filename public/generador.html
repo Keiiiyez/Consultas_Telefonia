@@ -30,105 +30,108 @@
                         <option value="ORANGE">Orange</option>
                         <option value="YOIGO">Yoigo</option>
                         <option value="DIGI">Digi</option>
+                        <option value="JAZZTEL">Jazztel</option>
+                        <option value="LEBARA">Lebara</option>
+                        <option value="MASMOVIL">MásMóvil</option>
                     </select>
                 </div>
             </div>
 
-            <div class="flex gap-3 mb-6">
-                <button id="generarBtn" 
-                        class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2">
+            <div class="flex items-center justify-between mb-6 gap-4">
+                <button id="generarBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-bolt"></i> Generar
                 </button>
-                <button id="descargarBtn" disabled
-                        class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="descargarBtn" disabled class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                     <i class="fa-solid fa-file-csv"></i> Descargar CSV
                 </button>
             </div>
 
-            <textarea id="resultado" 
-                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none mb-4" 
-                      readonly placeholder="Los números aparecerán aquí..."></textarea>
-
-            <div class="text-center">
-                <p id="contador" class="text-slate-500 text-sm italic">Listo para generar</p>
+            <div class="text-center mb-4">
+                <span id="contador" class="text-sm text-slate-400 italic">Listo para generar</span>
             </div>
+
+            <textarea id="resultado" readonly placeholder="Los números aparecerán aquí..."
+                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none resize-none mb-4 focus:border-blue-500">
+            </textarea>
         </div>
     </div>
 
 <script>
+    // 1. Configuración de Prefijos
     const prefijosMapa = {
-        'MOVISTAR': ['600', '609', '619', '629', '630', '639','619','650','659','670','679','696','699'],
-        'VODAFONE': ['607', '608', '610', '617', '627', '640', '649', '660', '669'],
-        'ORANGE':   ['600', '609', '615', '616', '618', '625', '650', '659', '670', '679', '690', '699', '642', '643', '644', '645', '646', '647', '648', '651', '652', '653', '654', '655', '656', '657', '649', '680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '717', '722', '733', '744', '747', '755'],  
-        'YOIGO':    ['622', '633', '645','650', '693'],
+        'MOVISTAR': ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
+        'VODAFONE': ['607', '608', '610', '617', '627', '649', '660', '661', '662', '663', '664', '665', '666', '667', '668', '669'],
+        'ORANGE':   ['615', '616', '618', '625', '642', '643', '646', '647', '648', '651', '652', '653', '671', '672', '673', '674', '675', '676', '677', '681', '682', '683', '689'],
+        'YOIGO':    ['622'],
         'DIGI':     ['722'],
-        'TODOS':    ['600', '609', '619', '629', '630', '639','619','650','659','670','679','696','699',
-                     '607', '608', '610', '617', '627', '640', '649', '660', '669',
-                     '615', '616', '618', '625', '642', '643', '644', '645', '646', '647', '648', '651', '652', '653', '654', '655', '656', '657', '680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '717', '722', '733', '744', '747', '755',
-                     '622', '633', '693',
-                     '722']
+        'JAZZTEL':  ['640', '644', '645'],
+        'LEBARA':   ['632', '634', '694'],
+        'MASMOVIL': ['623', '633', '693'],
+        'TODOS': [] 
     };
+
+    // Auto-llenado de TODOS
+    prefijosMapa.TODOS = Object.values(prefijosMapa).flat();
 
     let numerosGenerados = [];
 
+    // 2. Lógica de Generación
     document.getElementById('generarBtn').addEventListener('click', function() {
         const cantidad = parseInt(document.getElementById('cantidad').value);
         const opSeleccionado = document.getElementById('operador').value;
+        const btn = this;
         const resArea = document.getElementById('resultado');
         const cont = document.getElementById('contador');
         const descBtn = document.getElementById('descargarBtn');
 
-        if (cantidad <= 0 || cantidad > 500000) {
-            alert("Ingresa una cantidad entre 1 y 500.000");
+        if (isNaN(cantidad) || cantidad <= 0 || cantidad > 500000) {
+            alert("Por favor, ingresa una cantidad válida entre 1 y 500,000");
             return;
         }
 
-        let conjuntoNumeros = new Set();
-        const prefijos = prefijosMapa[opSeleccionado];
-
-        this.innerText = "Procesando...";
-        this.disabled = true;
+        // UI Feedback
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+        btn.disabled = true;
+        descBtn.disabled = true;
 
         setTimeout(() => {
+            const conjuntoNumeros = new Set();
+            const prefijos = prefijosMapa[opSeleccionado];
+            
             while (conjuntoNumeros.size < cantidad) {
                 const pre = prefijos[Math.floor(Math.random() * prefijos.length)];
-
-                const sufijo = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+                // Generamos un sufijo de 6 dígitos aleatorios
+                const sufijo = Math.floor(100000 + Math.random() * 900000).toString();
                 conjuntoNumeros.add(pre + sufijo);
-                
-                if (conjuntoNumeros.size >= 1000000) break; 
             }
 
             numerosGenerados = Array.from(conjuntoNumeros);
-
-            resArea.value = numerosGenerados.slice(0, 5000).join('\n') + 
-                           (numerosGenerados.length > 5000 ? '\n\n... (Lista completa disponible en el botón Descargar CSV)' : '');
             
-            cont.innerText = `${numerosGenerados.length.toLocaleString()} números únicos listos`;
+            // Renderizado parcial para no colapsar el navegador
+            resArea.value = numerosGenerados.slice(0, 3000).join('\n') + 
+                (numerosGenerados.length > 3000 ? `\n\n... [+${(numerosGenerados.length - 3000).toLocaleString()} números adicionales en el archivo]` : '');
+            
+            cont.innerText = `✨ ${numerosGenerados.length.toLocaleString()} números únicos listos`;
             descBtn.disabled = false;
             
-            this.innerText = "Generar";
-            this.disabled = false;
-        }, 100);
+            btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Generar';
+            btn.disabled = false;
+        }, 50);
     });
 
+    // 3. Lógica de Descarga
     document.getElementById('descargarBtn').addEventListener('click', function() {
         if (numerosGenerados.length === 0) return;
 
-        const csvRows = ["Numeros"];
-        numerosGenerados.forEach(n => csvRows.push(n));
-        const csvString = csvRows.join("\n");
-        
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(["Numero\n", numerosGenerados.join("\n")], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         
         const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `lista_numeros_${document.getElementById('operador').value.toLowerCase()}.csv`);
-        document.body.appendChild(link);
+        link.href = url;
+        link.download = `lista_${document.getElementById('operador').value.toLowerCase()}_${new Date().getTime()}.csv`;
         link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        
+        setTimeout(() => URL.revokeObjectURL(url), 100);
     });
 </script>
 </body>
