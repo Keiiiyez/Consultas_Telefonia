@@ -763,11 +763,70 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date() });
 });
 
+// ==================== EXPANDIR CABECERAS ====================
+
+app.post('/api/expandir-cabeceras', async (req, res) => {
+    const { cabeceras, cantidadPorCabecera } = req.body;
+    let todosLosNumeros = new Set();
+    
+    // Importamos la conexión aquí para asegurar que esté disponible
+    const db = require('./config/db'); 
+
+    try {
+        for (let seed of cabeceras) {
+            const cleanSeed = seed.startsWith('34') ? seed.substring(2) : seed;
+            
+            // IMPORTANTE: Verifica que el nombre de tu tabla sea 'numero_ranges' 
+            // o 'rangos_iniciales' según tu base de datos actual.
+            const [rangos] = await db.query(
+                "SELECT range_start as inicio, range_end as fin FROM numero_ranges WHERE ? BETWEEN range_start AND range_end LIMIT 1",
+                [BigInt(cleanSeed)]
+            );
+
+            if (rangos.length > 0) {
+                const inicio = BigInt(rangos[0].inicio);
+                const fin = BigInt(rangos[0].fin);
+                const rangoSize = Number(fin - inicio);
+                
+                // Intentar generar la cantidad pedida
+                let intentos = 0;
+                const maxIntentos = cantidadPorCabecera * 2;
+                let generadosPorEstaCabecera = 0;
+
+                while (generadosPorEstaCabecera < cantidadPorCabecera && intentos < maxIntentos) {
+                    // Generar número aleatorio dentro del rango oficial detectado
+                    const offset = BigInt(Math.floor(Math.random() * (rangoSize + 1)));
+                    const nuevoNum = inicio + offset;
+                    
+                    const numString = nuevoNum.toString();
+                    if (!todosLosNumeros.has(numString)) {
+                        todosLosNumeros.add(numString);
+                        generadosPorEstaCabecera++;
+                    }
+                    intentos++;
+                }
+            }
+        }
+
+        res.json({ 
+            success: true, 
+            numeros: Array.from(todosLosNumeros),
+            total: todosLosNumeros.size 
+        });
+        
+    } catch (error) {
+        console.error('Error en expansión:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // ==================== 404 ====================
 
 app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint no encontrado' });
 });
+
 
 // ==================== START SERVER ====================
 

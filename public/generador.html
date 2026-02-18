@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador Pro de Números</title>
+    <title>Generador de Números Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,53 +11,65 @@
 
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-10">
         <div class="w-full max-w-2xl bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
-            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500">Generador de Números!!</h1>
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500">Generador de Números Pro</h1>
             
-            <div class="grid md:grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-slate-400">Cantidad</label>
-                    <input type="number" id="cantidad" 
-                           class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500" 
-                           min="1" max="500000" value="1000">
+            <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700 mb-8">
+                <h2 class="text-lg font-semibold mb-4 text-blue-400"><i class="fa-solid fa-layer-group mr-2"></i>Generación Masiva por Operador</h2>
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-400">Cantidad</label>
+                        <input type="number" id="cantidad" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500" value="1000">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-400">Operador</label>
+                        <select id="operador" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500">
+                            <option value="TODOS">Todos (Aleatorio)</option>
+                            <option value="MOVISTAR">Movistar</option>
+                            <option value="VODAFONE">Vodafone</option>
+                            <option value="ORANGE">Orange</option>
+                            <option value="YOIGO">Yoigo</option>
+                            <option value="DIGI">Digi</option>
+                            <option value="JAZZTEL">Jazztel</option>
+                            <option value="LEBARA">Lebara</option>
+                        </select>
+                    </div>
                 </div>
-                
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-slate-400">Operador</label>
-                    <select id="operador" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500">
-                        <option value="TODOS">Todos (Aleatorio)</option>
-                        <option value="MOVISTAR">Movistar</option>
-                        <option value="VODAFONE">Vodafone</option>
-                        <option value="ORANGE">Orange</option>
-                        <option value="YOIGO">Yoigo</option>
-                        <option value="DIGI">Digi</option>
-                        <option value="JAZZTEL">Jazztel</option>
-                        <option value="LEBARA">Lebara</option>
-                        <option value="MASMOVIL">MásMóvil</option>
-                    </select>
-                </div>
+                <button id="generarBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> Generar por Operador
+                </button>
             </div>
 
-            <div class="flex items-center justify-between mb-6 gap-4">
-                <button id="generarBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-bolt"></i> Generar
+            <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700 mb-8">
+                <h2 class="text-lg font-semibold mb-4 text-cyan-400"><i class="fa-solid fa-dna mr-2"></i>Generar por Cabecera</h2>
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-400">Números Semilla</label>
+                        <input type="text" id="seedInput" placeholder="Ej: 660508437" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-400">Cantidad por Cabecera</label>
+                        <input type="number" id="cantidadSeed" value="5000" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+                <button id="generarSeedBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Expandir Cabeceras
                 </button>
-                <button id="descargarBtn" disabled class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            </div>
+
+            <div class="flex items-center justify-between mb-4 px-2">
+                <span id="contador" class="text-sm text-slate-400 italic">Listo para generar</span>
+                <button id="descargarBtn" disabled class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-30">
                     <i class="fa-solid fa-file-csv"></i> Descargar CSV
                 </button>
             </div>
 
-            <div class="text-center mb-4">
-                <span id="contador" class="text-sm text-slate-400 italic">Listo para generar</span>
-            </div>
-
             <textarea id="resultado" readonly placeholder="Los números aparecerán aquí..."
-                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none resize-none mb-4 focus:border-blue-500">
+                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none resize-none focus:border-blue-500">
             </textarea>
         </div>
     </div>
 
 <script>
-    // 1. Configuración de Prefijos
     const prefijosMapa = {
         'MOVISTAR': ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
         'VODAFONE': ['607', '608', '610', '617', '627', '649', '660', '661', '662', '663', '664', '665', '666', '667', '668', '669'],
@@ -69,69 +81,87 @@
         'MASMOVIL': ['623', '633', '693'],
         'TODOS': [] 
     };
-
-    // Auto-llenado de TODOS
     prefijosMapa.TODOS = Object.values(prefijosMapa).flat();
 
     let numerosGenerados = [];
 
-    // 2. Lógica de Generación
+    function actualizarUI(lista) {
+        numerosGenerados = lista;
+        document.getElementById('resultado').value = lista.slice(0, 3000).join('\n') + 
+            (lista.length > 3000 ? `\n\n... [+${(lista.length - 3000).toLocaleString()} adicionales]` : '');
+        document.getElementById('contador').innerText = `✨ ${lista.length.toLocaleString()} números únicos listos`;
+        document.getElementById('descargarBtn').disabled = false;
+    }
+
+    // 1. GENERADOR TRADICIONAL
     document.getElementById('generarBtn').addEventListener('click', function() {
         const cantidad = parseInt(document.getElementById('cantidad').value);
         const opSeleccionado = document.getElementById('operador').value;
         const btn = this;
-        const resArea = document.getElementById('resultado');
-        const cont = document.getElementById('contador');
-        const descBtn = document.getElementById('descargarBtn');
 
-        if (isNaN(cantidad) || cantidad <= 0 || cantidad > 500000) {
-            alert("Por favor, ingresa una cantidad válida entre 1 y 500,000");
-            return;
-        }
-
-        // UI Feedback
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
         btn.disabled = true;
-        descBtn.disabled = true;
-
         setTimeout(() => {
-            const conjuntoNumeros = new Set();
+            const conjunto = new Set();
             const prefijos = prefijosMapa[opSeleccionado];
-            
-            while (conjuntoNumeros.size < cantidad) {
+            while (conjunto.size < cantidad) {
                 const pre = prefijos[Math.floor(Math.random() * prefijos.length)];
-                // Generamos un sufijo de 6 dígitos aleatorios
-                const sufijo = Math.floor(100000 + Math.random() * 900000).toString();
-                conjuntoNumeros.add(pre + sufijo);
+                const suf = Math.floor(100000 + Math.random() * 900000).toString();
+                conjunto.add(pre + suf);
             }
-
-            numerosGenerados = Array.from(conjuntoNumeros);
-            
-            // Renderizado parcial para no colapsar el navegador
-            resArea.value = numerosGenerados.slice(0, 3000).join('\n') + 
-                (numerosGenerados.length > 3000 ? `\n\n... [+${(numerosGenerados.length - 3000).toLocaleString()} números adicionales en el archivo]` : '');
-            
-            cont.innerText = `✨ ${numerosGenerados.length.toLocaleString()} números únicos listos`;
-            descBtn.disabled = false;
-            
-            btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Generar';
+            actualizarUI(Array.from(conjunto));
             btn.disabled = false;
         }, 50);
     });
 
-    // 3. Lógica de Descarga
-    document.getElementById('descargarBtn').addEventListener('click', function() {
-        if (numerosGenerados.length === 0) return;
+    // 2. GENERADOR POR CABECERA CON CANTIDAD MANUAL
+    document.getElementById('generarSeedBtn').addEventListener('click', async function() {
+        const input = document.getElementById('seedInput').value;
+        const cantidadManual = parseInt(document.getElementById('cantidadSeed').value) || 5000;
+        // Limpiar el input: quitar espacios y posibles "34" al inicio de cada número
+        const cabeceras = input.split(/[\s,]+/).filter(n => n.length >= 3).map(n => n.startsWith('34') ? n.substring(2) : n);
+        const btn = this;
 
-        const blob = new Blob(["Numero\n", numerosGenerados.join("\n")], { type: 'text/csv;charset=utf-8;' });
+        if (cabeceras.length === 0) {
+            alert("Ingresa al menos un número de cabecera");
+            return;
+        }
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/api/expandir-cabeceras', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    cabeceras: cabeceras, 
+                    cantidadPorCabecera: cantidadManual 
+                })
+            });
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            actualizarUI(data.numeros);
+        } catch (err) {
+            alert("Error: " + err.message);
+        } finally {
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Expandir Cabeceras';
+            btn.disabled = false;
+        }
+    });
+
+    // 3. DESCARGA CSV (FORZANDO MODO TEXTO PARA EXCEL)
+    document.getElementById('descargarBtn').addEventListener('click', function() {
+        // Usamos \ufeff al inicio para que Excel detecte UTF-8
+        // Y añadimos una comilla simple o forzamos el formato para evitar notación científica
+        const contenido = "Numero\n" + numerosGenerados.join("\n");
+        const blob = new Blob(["\ufeff" + contenido], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-        
         const link = document.createElement("a");
         link.href = url;
-        link.download = `lista_${document.getElementById('operador').value.toLowerCase()}_${new Date().getTime()}.csv`;
+        link.download = `lista_numeros_${new Date().getTime()}.csv`;
         link.click();
-        
-        setTimeout(() => URL.revokeObjectURL(url), 100);
     });
 </script>
 </body>
