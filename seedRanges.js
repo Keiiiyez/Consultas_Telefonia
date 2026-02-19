@@ -11,12 +11,22 @@ async function seedRanges() {
         'MasMovil': ['623', '633', '693'],
         'Jazztel': ['640', '644', '645'],
         'Lebara': ['632', '634', '694'],
-        'Digi': ['722']
+        'Digi': ['722'],
+        'Finetwork': ['611', '613', '602'],
+        'Simyo': ['641', '642', '643'],
+        'Lowi': ['607', '608', '660'],
+        'Pepephone': ['634', '633']
+        
     };
 
     const nrnMap = { 'Movistar': '3400', 'Vodafone': '3410', 'Orange': '3420', 'Yoigo': '3430', 'Digi': '3407', 'MasMovil': '3430',
         'Jazztel': '3420',
-        'Lebara': '3410' };
+        'Lebara': '3410',
+        'Finetwork': '3408',
+        'Simyo': '3409',
+        'Lowi': '3411',
+        'Pepephone': '3412'
+    };
 
     try {
   

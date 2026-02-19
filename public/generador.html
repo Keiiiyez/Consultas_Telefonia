@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Números Pro</title>
+    <title>Generador de Números</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,7 +11,7 @@
 
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-10">
         <div class="w-full max-w-2xl bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
-            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500">Generador de Números Pro</h1>
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500">Generador de Números</h1>
             
             <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700 mb-8">
                 <h2 class="text-lg font-semibold mb-4 text-blue-400"><i class="fa-solid fa-layer-group mr-2"></i>Generación Masiva por Operador</h2>
@@ -31,6 +31,11 @@
                             <option value="DIGI">Digi</option>
                             <option value="JAZZTEL">Jazztel</option>
                             <option value="LEBARA">Lebara</option>
+                            <option value="FINETWORK">Finetwork</option>
+                            <option value="SIMYO">Simyo</option>
+                            <option value="MASMOVIL">MasMovil</option>
+                            <option value="LOWI">Lowi</option>
+                            <option value="PEPEPHONE">Pepephone</option>
                         </select>
                     </div>
                 </div>
@@ -73,12 +78,16 @@
     const prefijosMapa = {
         'MOVISTAR': ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
         'VODAFONE': ['607', '608', '610', '617', '627', '649', '660', '661', '662', '663', '664', '665', '666', '667', '668', '669'],
-        'ORANGE':   ['615', '616', '618', '625', '642', '643', '646', '647', '648', '651', '652', '653', '671', '672', '673', '674', '675', '676', '677', '681', '682', '683', '689'],
+        'ORANGE':   ['615', '616', '618', '625', '646', '647', '648', '651', '652', '653', '671', '672', '673', '674', '675', '676', '677', '681', '682', '683', '689'],
         'YOIGO':    ['622'],
         'DIGI':     ['722'],
         'JAZZTEL':  ['640', '644', '645'],
         'LEBARA':   ['632', '634', '694'],
         'MASMOVIL': ['623', '633', '693'],
+        'FINETWORK':['611', '613', '602'],
+        'SIMYO':    ['641', '642', '643'],
+        'LOWI':     ['607', '608', '660'],
+        'PEPEPHONE': ['634', '633'],
         'TODOS': [] 
     };
     prefijosMapa.TODOS = Object.values(prefijosMapa).flat();
