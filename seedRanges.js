@@ -15,11 +15,12 @@ const data = {
     'Finetwork': ['611', '613', '602'],
     'Simyo': ['641', '642', '643'],
     'Lowi': ['607', '608', '660'],
-    'Pepephone': ['634', '633', '722'],
-    'Llamaya': ['632', '631'],
+    'Pepephone': ['634', '633'],
+    'Llamaya': ['631', '632', '693'], 
     'Euskaltel': ['688', '652'],
     'R': ['698'],
-    'Telecable': ['684']
+    'Telecable': ['684'],
+    'Adamo': ['643', '642', '623']
 };
 
 const nrnMap = { 
@@ -38,7 +39,8 @@ const nrnMap = {
     'Llamaya': '3414',
     'Euskaltel': '3415',
     'R': '3416',
-    'Telecable': '3417'
+    'Telecable': '3417',
+    'Adamo': '3425'
 };
     try {
   

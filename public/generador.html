@@ -40,6 +40,7 @@
                             <option value="EUSKALTEL">Euskaltel</option>
                             <option value="R">R</option>
                             <option value="TELECABLE">Telecable</option>
+                            <option value="ADAMO">Adamo</option>
                         </select>
                     </div>
                 </div>
@@ -79,25 +80,29 @@
     </div>
 
 <script>
+    // Las claves deben estar en MAYÚSCULAS para coincidir con el valor del select
     const prefijosMapa = {
-    'MOVISTAR':  ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
-    'VODAFONE':  ['607', '608', '610', '617', '627', '649', '654', '655', '656', '657', '658', '660', '661', '662', '663', '664', '665', '666', '667', '668', '669'],
-    'ORANGE':    ['615', '616', '618', '625', '642', '643', '646', '647', '648', '651', '652', '653', '671', '672', '673', '674', '675', '676', '677', '680', '681', '682', '683', '685', '686', '687', '688', '689', '717', '733', '744', '747', '755'],
-    'YOIGO':     ['622'],
-    'DIGI':      ['722'],
-    'JAZZTEL':   ['640', '644', '645'],
-    'LEBARA':    ['632', '634', '694'],
-    'MASMOVIL':  ['623', '633', '693'],
-    'FINETWORK': ['611', '613', '602'],
-    'SIMYO':     ['641', '642', '643'],
-    'LOWI':      ['607', '608', '660'],
-    'PEPEPHONE': ['634', '633'],
-    'LLAMAYA':   ['633', '634', '623'],
-    'EUSKALTEL': ['688', '652'],
-    'R':         ['698'],
-    'TELECABLE': ['684'],
-    'TODOS':     [] 
-};
+        'MOVISTAR': ['600', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699', '604', '605', '606'],
+        'VODAFONE': ['607', '608', '610', '617', '627', '649', '660', '669', '654', '655', '656', '657', '658', '661', '662', '663', '664', '665', '666', '667', '668'],
+        'ORANGE': ['615', '616', '618', '625', '642', '643', '646', '647', '648', '651', '652', '653', '671', '672', '673', '674', '675', '676', '677', '680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '717', '733', '744', '747', '755'],
+        'YOIGO': ['622'],
+        'MASMOVIL': ['623', '633', '693'],
+        'JAZZTEL': ['640', '644', '645'],
+        'LEBARA': ['632', '634', '694'],
+        'DIGI': ['722'],
+        'FINETWORK': ['611', '613', '602'],
+        'SIMYO': ['641', '642', '643'],
+        'LOWI': ['607', '608', '660'],
+        'PEPEPHONE': ['634', '633'],
+        'LLAMAYA': ['631', '632', '693'], 
+        'EUSKALTEL': ['688', '652'],
+        'R': ['698'],
+        'TELECABLE': ['684'],
+        'ADAMO': ['643', '642', '623'],
+        'TODOS': [] 
+    };
+    
+    // Rellenamos la categoría TODOS
     prefijosMapa.TODOS = Object.values(prefijosMapa).flat();
 
     let numerosGenerados = [];
@@ -120,8 +125,16 @@
         setTimeout(() => {
             const conjunto = new Set();
             const prefijos = prefijosMapa[opSeleccionado];
+            
+            if (!prefijos || prefijos.length === 0) {
+                alert("Error: No se encontraron prefijos para este operador.");
+                btn.disabled = false;
+                return;
+            }
+
             while (conjunto.size < cantidad) {
                 const pre = prefijos[Math.floor(Math.random() * prefijos.length)];
+                // Generamos 6 dígitos aleatorios para completar los 9
                 const suf = Math.floor(100000 + Math.random() * 900000).toString();
                 conjunto.add(pre + suf);
             }
@@ -130,11 +143,10 @@
         }, 50);
     });
 
-    // 2. GENERADOR POR CABECERA CON CANTIDAD MANUAL
+    // 2. GENERADOR POR CABECERA
     document.getElementById('generarSeedBtn').addEventListener('click', async function() {
         const input = document.getElementById('seedInput').value;
         const cantidadManual = parseInt(document.getElementById('cantidadSeed').value) || 5000;
-        // Limpiar el input: quitar espacios y posibles "34" al inicio de cada número
         const cabeceras = input.split(/[\s,]+/).filter(n => n.length >= 3).map(n => n.startsWith('34') ? n.substring(2) : n);
         const btn = this;
 
@@ -168,16 +180,15 @@
         }
     });
 
-    // 3. DESCARGA CSV (FORZANDO MODO TEXTO PARA EXCEL)
+    // 3. DESCARGA CSV (ANTI-EXCEL CIENTÍFICO)
     document.getElementById('descargarBtn').addEventListener('click', function() {
-        // Usamos \ufeff al inicio para que Excel detecte UTF-8
-        // Y añadimos una comilla simple o forzamos el formato para evitar notación científica
         const contenido = "Numero\n" + numerosGenerados.join("\n");
+        // El \ufeff ayuda a Excel a entender que es UTF-8
         const blob = new Blob(["\ufeff" + contenido], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `lista_numeros_${new Date().getTime()}.csv`;
+        link.download = `numeros_${new Date().getTime()}.csv`;
         link.click();
     });
 </script>
