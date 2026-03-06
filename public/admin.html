@@ -35,16 +35,16 @@
 
         <!-- Navigation -->
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-            <button onclick="showTab('stats')" class="nav-item active w-full text-left p-3 rounded-lg bg-blue-600 border border-blue-600 hover:bg-blue-700 transition">
+        <!--    <button onclick="showTab('stats')" class="nav-item active w-full text-left p-3 rounded-lg bg-blue-600 border border-blue-600 hover:bg-blue-700 transition">
                 <i class="fa-solid fa-chart-line mr-2"></i><span>Estadísticas</span>
             </button>
             <button onclick="showTab('portings')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
-                <i class="fa-solid fa-arrows-rotate mr-2"></i><span>Portabilidades</span>
+                <i class="fa-solid fa-arrows-rotate mr-2"></i><span>Portabilidades</span>-->
             </button>
             <button onclick="showTab('numbers')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-phone mr-2"></i><span>Gestionar Números</span>
             </button>
-            <button onclick="showTab('spam')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+             <!-- <button onclick="showTab('spam')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-shield-exclamation mr-2"></i><span>Spam/Fraude</span>
             </button>
             <button onclick="showTab('keys')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
@@ -54,7 +54,7 @@
                 <i class="fa-solid fa-file-lines mr-2"></i><span>Logs</span>
             </button>
             <button onclick="showTab('vonage')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
-                <i class="fa-solid fa-satellite mr-2"></i><span>Verificar Vonage</span>
+                <i class="fa-solid fa-satellite mr-2"></i><span>Verificar Vonage</span>-->
             </button>
         </nav>
 
@@ -91,7 +91,7 @@
             <!-- Stats Tab -->
             <div id="stats-tab" class="tab-content active">
                 <div class="mb-4 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold">📊 Estadísticas</h2>
+                    <h2 class="text-2xl font-bold">Estadísticas</h2>
                     <button onclick="loadStats()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition">
                         <i class="fa-solid fa-rotate-right mr-2"></i>Actualizar
                     </button>
@@ -99,19 +99,19 @@
 
                 <div class="grid grid-cols-4 gap-4 mb-8">
                     <div class="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700 rounded-lg p-6 hover:border-blue-500 transition">
-                        <p class="text-blue-300 text-sm mb-2">📊 Búsquedas Totales</p>
+                        <p class="text-blue-300 text-sm mb-2">Búsquedas Totales</p>
                         <p class="text-4xl font-bold text-blue-300" id="total-searches">0</p>
                     </div>
                     <div class="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700 rounded-lg p-6 hover:border-green-500 transition">
-                        <p class="text-green-300 text-sm mb-2">✅ Exitosas</p>
+                        <p class="text-green-300 text-sm mb-2">Exitosas</p>
                         <p class="text-4xl font-bold text-green-400" id="successful">0</p>
                     </div>
                     <div class="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700 rounded-lg p-6 hover:border-red-500 transition">
-                        <p class="text-red-300 text-sm mb-2">❌ Fallidas</p>
+                        <p class="text-red-300 text-sm mb-2">Fallidas</p>
                         <p class="text-4xl font-bold text-red-400" id="failed">0</p>
                     </div>
                     <div class="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700 rounded-lg p-6 hover:border-yellow-500 transition">
-                        <p class="text-yellow-300 text-sm mb-2">⚡ Tiempo Promedio</p>
+                        <p class="text-yellow-300 text-sm mb-2">Tiempo Promedio</p>
                         <p class="text-4xl font-bold text-yellow-300" id="avg-time">0ms</p>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                     <!-- Gráfico Principal - Doughnut -->
                     <div class="lg:col-span-2 bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                        <h3 class="text-xl font-bold mb-6">📞 Búsquedas por Operador</h3>
+                        <h3 class="text-xl font-bold mb-6"> Búsquedas por Operador</h3>
                         <div style="position: relative; height: 300px;">
                             <canvas id="operatorChart"></canvas>
                         </div>
@@ -128,7 +128,7 @@
 
                     <!-- Estadísticas de Operadores -->
                     <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                        <h3 class="text-xl font-bold mb-4">🏢 Top Operadores</h3>
+                        <h3 class="text-xl font-bold mb-4">Top Operadores</h3>
                         <div id="operator-stats" class="space-y-3">
                             <div class="text-center text-slate-400 py-8">Cargando...</div>
                         </div>
@@ -138,17 +138,17 @@
                 <!-- Tabla Detallada de Operadores -->
                 <div class="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden mb-8">
                     <div class="px-6 py-4 border-b border-slate-700">
-                        <h3 class="text-xl font-bold">📊 Análisis Detallado de Operadores</h3>
+                        <h3 class="text-xl font-bold">Análisis Detallado de Operadores</h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b border-slate-700 bg-slate-900">
-                                    <th class="px-6 py-4 text-left">🏢 Operador</th>
-                                    <th class="px-6 py-4 text-center">📊 Búsquedas</th>
-                                    <th class="px-6 py-4 text-center">📈 Porcentaje</th>
-                                    <th class="px-6 py-4 text-center">⚡ Tiempo Promedio</th>
-                                    <th class="px-6 py-4 text-center">✅ Tasa Éxito</th>
+                                    <th class="px-6 py-4 text-left"> Operador</th>
+                                    <th class="px-6 py-4 text-center">Búsquedas</th>
+                                    <th class="px-6 py-4 text-center">Porcentaje</th>
+                                    <th class="px-6 py-4 text-center">Tiempo Promedio</th>
+                                    <th class="px-6 py-4 text-center">Tasa Éxito</th>
                                 </tr>
                             </thead>
                             <tbody id="operators-table">
@@ -160,7 +160,7 @@
 
                 <!-- Top 10 Números -->
                 <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                    <h3 class="text-xl font-bold mb-6">🔝 Top 10 Números Más Buscados</h3>
+                    <h3 class="text-xl font-bold mb-6">Top 10 Números Más Buscados</h3>
                     <div id="top-numbers" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <p class="text-slate-400 text-center py-8 md:col-span-2">Cargando...</p>
                     </div>
@@ -173,7 +173,7 @@
                     <!-- Formulario de Reportar -->
                     <div class="lg:col-span-2">
                         <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                            <h3 class="text-lg font-bold mb-6">📝 Reportar Cambio de Operador</h3>
+                            <h3 class="text-lg font-bold mb-6"> Reportar Cambio de Operador</h3>
                             
                             <div class="space-y-4">
                                 <!-- Número -->
@@ -224,7 +224,7 @@
 
                     <!-- Info Box -->
                     <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                        <h4 class="font-bold mb-4">ℹ️ ¿Qué es portabilidad?</h4>
+                        <h4 class="font-bold mb-4"> ¿Qué es portabilidad?</h4>
                         <p class="text-sm text-slate-400 mb-4">
                             La portabilidad numérica permite que un usuario mantenga su número al cambiar de operador telefónico.
                         </p>
@@ -268,7 +268,7 @@
             <div id="numbers-tab" class="tab-content">
                 <!-- Búsqueda en Lote -->
                 <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mb-8">
-                    <h3 class="text-lg font-bold mb-4">🔍 Búsqueda en Lote (Bulk Lookup)</h3>
+                    <h3 class="text-lg font-bold mb-4"> Reconocimiento de Operadoras</h3>
                     <p class="text-sm text-slate-400 mb-4">Carga un CSV con números, obtén sus operadores sin guardar en BD</p>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -288,18 +288,18 @@
                     </div>
 
                     <div class="mt-4 bg-slate-900/50 border border-slate-600 rounded p-3 text-xs text-slate-400">
-                        <p class="font-semibold mb-2">📝 Formato esperado:</p>
+                        <p class="font-semibold mb-2">Formato esperado:</p>
                         <p>• Archivo CSV simple con una columna de números</p>
                         <p>• Cada número en su propia línea o columna</p>
                         <p>• Ejemplo: <span class="font-mono">600000000</span></p>
-                        <p class="text-slate-500 mt-2">✓ Se procesarán hasta 10,000 números a la vez</p>
+                        <p class="text-slate-500 mt-2"></p>
                     </div>
                 </div>
 
                 <!-- Resultados Bulk Lookup -->
                 <div id="bulk-results" class="hidden bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden mb-8">
                     <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
-                        <h3 class="text-lg font-bold">📊 Resultados de Búsqueda</h3>
+                        <h3 class="text-lg font-bold">Resultados de Búsqueda</h3>
                         <div class="flex gap-2">
                             <button onclick="exportBulkResults()" class="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 rounded transition">
                                 <i class="fa-solid fa-download mr-1"></i>Descargar CSV
