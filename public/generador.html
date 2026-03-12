@@ -41,6 +41,8 @@
                             <option value="R">R</option>
                             <option value="TELECABLE">Telecable</option>
                             <option value="ADAMO">Adamo</option>
+                            <option value="ADAMO_PROX">Adamo (Rangos Orange)</option>
+                            <option value="O2">O2</option>
                         </select>
                     </div>
                 </div>
@@ -82,25 +84,35 @@
 <script>
     // Las claves deben estar en MAYÚSCULAS para coincidir con el valor del select
     const prefijosMapa = {
-        'MOVISTAR': ['600', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699', '604', '605', '606'],
-        'VODAFONE': ['607', '608', '610', '617', '627', '649', '660', '669', '654', '655', '656', '657', '658', '661', '662', '663', '664', '665', '666', '667', '668'],
-        'ORANGE': ['615', '616', '618', '625', '642', '643', '646', '647', '648', '651', '652', '653', '671', '672', '673', '674', '675', '676', '677', '680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '717', '733', '744', '747', '755'],
-        'YOIGO': ['622'],
-        'MASMOVIL': ['623', '633', '693'],
-        'JAZZTEL': ['640', '644', '645'],
-        'LEBARA': ['632', '634', '694'],
-        'DIGI': ['722'],
-        'FINETWORK': ['611', '613', '602'],
-        'SIMYO': ['641', '642', '643'],
-        'LOWI': ['607', '608', '660'],
-        'PEPEPHONE': ['634', '633'],
-        'LLAMAYA': ['631', '632', '693'], 
-        'EUSKALTEL': ['688', '652'],
-        'R': ['698'],
-        'TELECABLE': ['684'],
-        'ADAMO': ['643', '642', '623'],
-        'TODOS': [] 
-    };
+    // GRUPO TELEFÓNICA
+    'MOVISTAR': ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
+    'O2': ['620', '621'], // He dejado estos que son comunes en portabilidades recientes de O2 para diferenciarlo
+
+    // GRUPO VODAFONE
+    'VODAFONE': ['610', '617', '627', '649', '654', '655', '656', '657', '658', '661', '662', '663', '664', '665', '669'],
+    'LOWI': ['607', '608', '660', '667', '668'], // Prefijos donde Lowi tiene muchísima presencia
+
+    // GRUPO ORANGE
+    'ORANGE': ['615', '616', '618', '625', '646', '647', '648', '651', '653', '671', '672', '673', '674', '675', '676', '677', '681', '689', '717', '733', '744', '747', '755'],
+    'JAZZTEL': ['640', '644', '645'],
+    'SIMYO': ['641'], 
+
+    // GRUPO MÁSMÓVIL / YOIGO
+    'YOIGO': ['622'],
+    'PEPEPHONE': ['634'],
+    'MASMOVIL': ['623', '633', '693'],
+    'LLAMAYA': ['631', '632'],
+
+    // OTROS (OMVs Independientes o Regionales)
+    'DIGI': ['722'],
+    'FINETWORK': ['611', '613', '602'],
+    'LEBARA': ['694'],
+    'EUSKALTEL': ['688', '652'],
+    'R': ['698'],
+    'TELECABLE': ['684'],
+    'ADAMO': ['642', '643'],
+    'ADAMO_PROX': ['680', '682', '683', '685', '686', '687'] // Otros rangos de la red Orange asignados a ADAMO
+};
     
     // Rellenamos la categoría TODOS
     prefijosMapa.TODOS = Object.values(prefijosMapa).flat();
