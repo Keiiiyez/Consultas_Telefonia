@@ -3,52 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Números</title>
+    <title>Generador de Números Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .checkbox-card:checked + label { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); color: #eff6ff; }
+    </style>
 </head>
 <body class="bg-slate-950 text-white font-sans">
 
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-10">
-        <div class="w-full max-w-2xl bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
-            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500">Generador de Números</h1>
+        <div class="w-full max-w-3xl bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-500 tracking-tight">Generador de Números <span class="text-slate-500 font-light text-xl">v2.0</span></h1>
             
             <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700 mb-8">
-                <h2 class="text-lg font-semibold mb-4 text-blue-400"><i class="fa-solid fa-layer-group mr-2"></i>Generación por Operador</h2>
-                <div class="grid md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-slate-400">Cantidad</label>
-                        <input type="number" id="cantidad" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500" value="1000">
-                    </div>
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-slate-400">Seleccione el operador</label>
-                        <select id="operador" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500">
-                            <option value="TODOS">Todos (Aleatorio)</option>
-                            <option value="MOVISTAR">Movistar</option>
-                            <option value="VODAFONE">Vodafone</option>
-                            <option value="ORANGE">Orange</option>
-                            <option value="YOIGO">Yoigo</option>
-                            <option value="DIGI">Digi</option>
-                            <option value="JAZZTEL">Jazztel</option>
-                            <option value="LEBARA">Lebara</option>
-                            <option value="FINETWORK">Finetwork</option>
-                            <option value="SIMYO">Simyo</option>
-                            <option value="MASMOVIL">MasMovil</option>
-                            <option value="LOWI">Lowi</option>
-                            <option value="PEPEPHONE">Pepephone</option>
-                            <option value="LLAMAYA">Llamaya</option>
-                            <option value="EUSKALTEL">Euskaltel</option>
-                            <option value="R">R</option>
-                            <option value="TELECABLE">Telecable</option>
-                            <option value="ADAMO">Adamo</option>
-                            <option value="ADAMO_PROX">Adamo (Rangos Orange)</option>
-                            <option value="O2">O2</option>
-                        </select>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-blue-400"><i class="fa-solid fa-layer-group mr-2"></i>Selección de Operadoras</h2>
+                    <div class="flex gap-2">
+                        <button onclick="toggleAll(true)" class="text-[10px] uppercase font-bold text-slate-400 hover:text-blue-400 transition-colors">Seleccionar Todas</button>
+                        <span class="text-slate-700">|</span>
+                        <button onclick="toggleAll(false)" class="text-[10px] uppercase font-bold text-slate-400 hover:text-red-400 transition-colors">Limpiar</button>
                     </div>
                 </div>
-                <button id="generarBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-bolt"></i> Generar por Operador
-                </button>
+
+                <div id="operadoresGrid" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
+                    </div>
+
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-slate-400">Cantidad total a generar</label>
+                        <input type="number" id="cantidad" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white outline-none focus:border-blue-500" value="1000">
+                    </div>
+                    <div class="flex items-end">
+                        <button id="generarBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Generar Lista
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700 mb-8">
@@ -69,136 +63,153 @@
             </div>
 
             <div class="flex items-center justify-between mb-4 px-2">
-                <span id="contador" class="text-sm text-slate-400 italic">Listo para generar</span>
-                <button id="descargarBtn" disabled class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-30">
-                    <i class="fa-solid fa-file-csv"></i> Descargar CSV
-                </button>
+                <span id="contador" class="text-sm text-slate-400 italic">Esperando acción...</span>
+                <div class="flex gap-2">
+                    <button id="copiarBtn" disabled class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-all flex items-center gap-2 disabled:opacity-30">
+                        <i class="fa-solid fa-copy"></i> Copiar Todo
+                    </button>
+                    <button id="descargarBtn" disabled class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition-all flex items-center gap-2 disabled:opacity-30">
+                        <i class="fa-solid fa-file-csv"></i> CSV
+                    </button>
+                </div>
             </div>
 
             <textarea id="resultado" readonly placeholder="Los números aparecerán aquí..."
-                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none resize-none focus:border-blue-500">
-            </textarea>
+                      class="w-full h-64 p-4 bg-slate-950 border border-slate-800 rounded-xl font-mono text-sm text-blue-400 outline-none resize-none focus:border-blue-500 custom-scrollbar"></textarea>
         </div>
     </div>
 
 <script>
-    // Las claves deben estar en MAYÚSCULAS para coincidir con el valor del select
     const prefijosMapa = {
-    // GRUPO TELEFÓNICA
-    'MOVISTAR': ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
-    'O2': ['620', '621'], // He dejado estos que son comunes en portabilidades recientes de O2 para diferenciarlo
-
-    // GRUPO VODAFONE
-    'VODAFONE': ['610', '617', '627', '649', '654', '655', '656', '657', '658', '661', '662', '663', '664', '665', '669'],
-    'LOWI': ['607', '608', '660', '667', '668'], // Prefijos donde Lowi tiene muchísima presencia
-
-    // GRUPO ORANGE
-    'ORANGE': ['615', '616', '618', '625', '646', '647', '648', '651', '653', '671', '672', '673', '674', '675', '676', '677', '681', '689', '717', '733', '744', '747', '755'],
-    'JAZZTEL': ['640', '644', '645'],
-    'SIMYO': ['641'], 
-
-    // GRUPO MÁSMÓVIL / YOIGO
-    'YOIGO': ['622'],
-    'PEPEPHONE': ['634'],
-    'MASMOVIL': ['623', '633', '693'],
-    'LLAMAYA': ['631', '632'],
-
-    // OTROS (OMVs Independientes o Regionales)
-    'DIGI': ['722'],
-    'FINETWORK': ['611', '613', '602'],
-    'LEBARA': ['694'],
-    'EUSKALTEL': ['688', '652'],
-    'R': ['698'],
-    'TELECABLE': ['684'],
-    'ADAMO': ['642', '643'],
-    'ADAMO_PROX': ['680', '682', '683', '685', '686', '687'] // Otros rangos de la red Orange asignados a ADAMO
-};
-    
-    // Rellenamos la categoría TODOS
-    prefijosMapa.TODOS = Object.values(prefijosMapa).flat();
+        'MOVISTAR': ['600', '604', '605', '606', '609', '619', '629', '630', '639', '650', '659', '670', '679', '696', '699'],
+        'VODAFONE': ['610', '617', '627', '649', '654', '655', '656', '657', '658', '661', '662', '663', '664', '665', '669'],
+        'ORANGE': ['615', '616', '618', '625', '646', '647', '648', '651', '653', '671', '672', '673', '674', '675', '676', '677', '681', '689', '717', '733', '744', '747', '755'],
+        'YOIGO': ['622'],
+        'DIGI': ['722'],
+        'LOWI': ['607', '608', '660', '667', '668'],
+        'JAZZTEL': ['640', '644', '645'],
+        'SIMYO': ['641'], 
+        'PEPEPHONE': ['634'],
+        'MASMOVIL': ['623', '633', '693'],
+        'FINETWORK': ['611', '613', '602'],
+        'O2': ['620', '621'],
+        'ADAMO': ['642', '643'],
+        'LEBARA': ['694'],
+        'EUSKALTEL': ['688', '652'],
+        'R': ['698'],
+        'TELECABLE': ['684'],
+        'LLAMAYA': ['631', '632']
+    };
 
     let numerosGenerados = [];
 
-    function actualizarUI(lista) {
-        numerosGenerados = lista;
-        document.getElementById('resultado').value = lista.slice(0, 3000).join('\n') + 
-            (lista.length > 3000 ? `\n\n... [+${(lista.length - 3000).toLocaleString()} adicionales]` : '');
-        document.getElementById('contador').innerText = ` ${lista.length.toLocaleString()} números únicos listos`;
-        document.getElementById('descargarBtn').disabled = false;
+    // Generar el grid de checkboxes automáticamente
+    const grid = document.getElementById('operadoresGrid');
+    Object.keys(prefijosMapa).forEach(op => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <input type="checkbox" id="op-${op}" value="${op}" class="hidden checkbox-card op-check">
+            <label for="op-${op}" class="flex items-center justify-center p-2 rounded-lg border border-slate-700 text-[10px] font-bold cursor-pointer transition-all hover:border-slate-500 text-slate-400">
+                ${op}
+            </label>
+        `;
+        grid.appendChild(div);
+    });
+
+    function toggleAll(status) {
+        document.querySelectorAll('.op-check').forEach(cb => cb.checked = status);
     }
 
-    // 1. GENERADOR TRADICIONAL
+    function actualizarUI(lista) {
+        numerosGenerados = lista;
+        const textarea = document.getElementById('resultado');
+        textarea.value = lista.join('\n');
+        document.getElementById('contador').innerText = `${lista.length.toLocaleString()} números generados`;
+        document.getElementById('descargarBtn').disabled = false;
+        document.getElementById('copiarBtn').disabled = false;
+    }
+
+    // 1. GENERADOR MULTI-OPERADOR
     document.getElementById('generarBtn').addEventListener('click', function() {
         const cantidad = parseInt(document.getElementById('cantidad').value);
-        const opSeleccionado = document.getElementById('operador').value;
-        const btn = this;
+        const seleccionados = Array.from(document.querySelectorAll('.op-check:checked')).map(cb => cb.value);
+        
+        if (seleccionados.length === 0) {
+            alert("Selecciona al menos una operadora");
+            return;
+        }
 
+        const btn = this;
         btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Procesando...';
+
         setTimeout(() => {
             const conjunto = new Set();
-            const prefijos = prefijosMapa[opSeleccionado];
-            
-            if (!prefijos || prefijos.length === 0) {
-                alert("Error: No se encontraron prefijos para este operador.");
-                btn.disabled = false;
-                return;
-            }
+            // Combinamos todos los prefijos de las operadoras elegidas
+            const prefijosDisponibles = seleccionados.flatMap(op => prefijosMapa[op]);
 
             while (conjunto.size < cantidad) {
-                const pre = prefijos[Math.floor(Math.random() * prefijos.length)];
-                // Generamos 6 dígitos aleatorios para completar los 9
+                const pre = prefijosDisponibles[Math.floor(Math.random() * prefijosDisponibles.length)];
                 const suf = Math.floor(100000 + Math.random() * 900000).toString();
                 conjunto.add(pre + suf);
             }
+
             actualizarUI(Array.from(conjunto));
             btn.disabled = false;
-        }, 50);
+            btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Generar Lista';
+        }, 100);
     });
 
-    // 2. GENERADOR POR CABECERA
+    // 2. COPIAR AL PORTAPAPELES
+    document.getElementById('copiarBtn').addEventListener('click', function() {
+        const total = numerosGenerados.join('\n');
+        navigator.clipboard.writeText(total).then(() => {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> ¡Copiado!';
+            this.classList.replace('bg-slate-700', 'bg-slate-800');
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.classList.replace('bg-slate-800', 'bg-slate-700');
+            }, 2000);
+        });
+    });
+
+    // 3. GENERADOR POR CABECERA (Mantenemos tu lógica de API)
     document.getElementById('generarSeedBtn').addEventListener('click', async function() {
         const input = document.getElementById('seedInput').value;
         const cantidadManual = parseInt(document.getElementById('cantidadSeed').value) || 5000;
         const cabeceras = input.split(/[\s,]+/).filter(n => n.length >= 3).map(n => n.startsWith('34') ? n.substring(2) : n);
-        const btn = this;
+        
+        if (cabeceras.length === 0) { alert("Ingresa al menos una cabecera"); return; }
 
-        if (cabeceras.length === 0) {
-            alert("Ingresa al menos un número de cabecera");
-            return;
-        }
-
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
-        btn.disabled = true;
+        this.disabled = true;
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Expandiendo...';
 
         try {
             const response = await fetch('/api/expandir-cabeceras', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    cabeceras: cabeceras, 
-                    cantidadPorCabecera: cantidadManual 
-                })
+                body: JSON.stringify({ cabeceras, cantidadPorCabecera: cantidadManual })
             });
-
             const data = await response.json();
             if (data.error) throw new Error(data.error);
-
             actualizarUI(data.numeros);
         } catch (err) {
             alert("Error: " + err.message);
         } finally {
-            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Expandir Cabeceras';
-            btn.disabled = false;
+            this.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Expandir Cabeceras';
+            this.disabled = false;
         }
     });
 
+    // 4. DESCARGA CSV
     document.getElementById('descargarBtn').addEventListener('click', function() {
         const contenido = "Numero\n" + numerosGenerados.join("\n");
         const blob = new Blob(["\ufeff" + contenido], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = url;
-        link.download = `numeros_${new Date().getTime()}.csv`;
+        link.href = URL.createObjectURL(blob);
+        link.download = `bbdd_generada_${new Date().getTime()}.csv`;
         link.click();
     });
 </script>
