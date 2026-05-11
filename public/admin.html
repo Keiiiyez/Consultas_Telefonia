@@ -35,26 +35,26 @@
 
         <!-- Navigation -->
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-        <!--    <button onclick="showTab('stats')" class="nav-item active w-full text-left p-3 rounded-lg bg-blue-600 border border-blue-600 hover:bg-blue-700 transition">
+            <button onclick="showTab('stats', event)" class="nav-item active w-full text-left p-3 rounded-lg bg-blue-600 border border-blue-600 hover:bg-blue-700 transition">
                 <i class="fa-solid fa-chart-line mr-2"></i><span>Estadísticas</span>
             </button>
-            <button onclick="showTab('portings')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
-                <i class="fa-solid fa-arrows-rotate mr-2"></i><span>Portabilidades</span>-->
+            <button onclick="showTab('portings', event)" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-arrows-rotate mr-2"></i><span>Portabilidades</span>
             </button>
-            <button onclick="showTab('numbers')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+            <button onclick="showTab('numbers', event)" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-phone mr-2"></i><span>Gestionar Números</span>
             </button>
-             <!-- <button onclick="showTab('spam')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+            <button onclick="showTab('spam', event)" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-shield-exclamation mr-2"></i><span>Spam/Fraude</span>
             </button>
-            <button onclick="showTab('keys')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+            <button onclick="showTab('keys', event)" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-key mr-2"></i><span>API Keys</span>
             </button>
-            <button onclick="showTab('logs')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+            <button onclick="showTab('logs', event)" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
                 <i class="fa-solid fa-file-lines mr-2"></i><span>Logs</span>
             </button>
-            <button onclick="showTab('vonage')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
-                <i class="fa-solid fa-satellite mr-2"></i><span>Verificar Vonage</span>-->
+            <button onclick="showTab('vonage', event)" class="nav-item w-full text-left p-3 rounded-lg hover:bg-slate-800 border border-transparent transition">
+                <i class="fa-solid fa-satellite mr-2"></i><span>Verificar número</span>
             </button>
         </nav>
 
@@ -443,7 +443,7 @@
                 </div>
             </div>
 
-            
+            <!-- Keys Tab -->
             <div id="keys-tab" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
@@ -522,29 +522,28 @@
                 </div>
             </div>
 
-
-            <!-- Vonage Tab 
-            <div id="vonage-tab" class="tab-content hidden">
+            <!-- Vonage Tab (CORREGIDO) -->
+            <div id="vonage-tab" class="tab-content">
                 <div class="bg-slate-900 rounded-lg border border-slate-700 p-8">
-                    <h2 class="text-2xl font-bold mb-6">🛰️ Verificación con Vonage (Gratis)</h2>
+                    <h2 class="text-2xl font-bold mb-6">🛰️ Verificación con Veriphone</h2>
                     
                     <div class="grid md:grid-cols-2 gap-6">
-                         Panel Izquierdo: Verificación 
+                        <!-- Panel Izquierdo: Verificación -->
                         <div>
                             <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
                                 <h3 class="text-lg font-semibold mb-4">Verificar Número</h3>
-                                <p class="text-sm text-slate-400 mb-4">Usa Vonage (gratis) para verificar números en tiempo real</p>
+                                <p class="text-sm text-slate-400 mb-4">Usa Veriphone para verificar números en tiempo real</p>
                                 
                                 <div class="space-y-3">
-                                    <input type="text" id="vonage-number" placeholder="34XXXXXXXXX" 
+                                    <input type="text" id="veriphone-number" placeholder="34XXXXXXXXX" 
                                         class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
-                                    <button onclick="verifyWithVonage()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition">
-                                        <i class="fa-solid fa-magnifying-glass mr-2"></i>Verificar con Vonage
+                                    <button onclick="verifyWithVeriphone()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition">
+                                        <i class="fa-solid fa-magnifying-glass mr-2"></i>Verificar con Veriphone
                                     </button>
                                 </div>
                                 
-                                 Resultado Vonage 
-                                <div id="vonage-result" class="mt-6 hidden">
+                                <!-- Resultado Veriphone -->
+                                <div id="veriphone-result" class="mt-6 hidden">
                                     <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600 space-y-2 text-sm">
                                         <div><strong>Formato Internacional:</strong> <span id="vonage-intl"></span></div>
                                         <div><strong>Operador:</strong> <span id="vonage-carrier" class="text-blue-400"></span></div>
@@ -555,7 +554,7 @@
                             </div>
                         </div>
 
-                         Panel Derecho: Comparar 
+                        <!-- Panel Derecho: Comparar -->
                         <div>
                             <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
                                 <h3 class="text-lg font-semibold mb-4">Comparar con BD</h3>
@@ -566,12 +565,12 @@
                                         class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
                                     <input type="text" id="compare-operator" placeholder="Operador en BD (ej: Movistar)" 
                                         class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
-                                    <button onclick="compareWithVonage()" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold transition">
+                                    <button onclick="compareWithVeriphone()" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold transition">
                                         <i class="fa-solid fa-scale-balanced mr-2"></i>Comparar
                                     </button>
                                 </div>
 
-                                 Resultado Comparación 
+                                <!-- Resultado Comparación -->
                                 <div id="compare-result" class="mt-6 hidden">
                                     <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600 space-y-2 text-sm">
                                         <div><strong>BD:</strong> <span id="compare-bd"></span></div>
@@ -586,13 +585,13 @@
                         </div>
                     </div>
 
-                     Info 
+                    <!-- Info -->
                     <div class="mt-6 bg-blue-900/20 border border-blue-800 rounded-lg p-4 text-sm text-slate-300">
                         <i class="fa-solid fa-info-circle mr-2"></i>
                         <strong>ℹ️ Plan Gratis:</strong> Vonage Basic Lookup es completamente gratis. Verifica el operador, tipo de línea y detecta portabilidades aproximadas.
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
 </div>
@@ -603,13 +602,11 @@
         const token = localStorage.getItem('adminToken');
         
         if (!token) {
-            // Sin token, redirigir a login
             console.log('No token found, redirecting to login');
             window.location.href = '/admin-login.html';
             return;
         }
 
-        // Verificar que el token sea válido
         try {
             const response = await fetch('/api/admin/verify', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -622,7 +619,6 @@
                 return;
             }
 
-            // Token válido, cargar datos
             console.log('Token valid, loading dashboard');
             loadStats();
         } catch (err) {
@@ -632,27 +628,34 @@
         }
     });
 
-    // Cambiar tabs
-    function showTab(tab) {
-        // Actualizar nav items
+    // Cambiar tabs (CORREGIDO: recibe event como parámetro)
+    function showTab(tab, evt) {
         document.querySelectorAll('.nav-item').forEach(el => {
             el.classList.remove('active', 'bg-blue-600', 'border-blue-600');
             el.classList.add('border-transparent');
         });
-        event.target.closest('.nav-item').classList.add('active', 'bg-blue-600', 'border-blue-600');
+        if (evt && evt.target) {
+            evt.target.closest('.nav-item').classList.add('active', 'bg-blue-600', 'border-blue-600');
+        }
 
-        // Actualizar contenido
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById(tab + '-tab').classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(el => {
+            el.classList.remove('active');
+            el.classList.add('hidden');
+        });
+        const tabElement = document.getElementById(tab + '-tab');
+        if (tabElement) {
+            tabElement.classList.remove('hidden');
+            tabElement.classList.add('active');
+        }
 
-        // Actualizar título
         const titles = {
             'stats': 'Estadísticas Generales',
             'portings': 'Gestión de Portabilidades',
             'numbers': 'Gestionar Números',
             'spam': 'Gestión de Spam/Fraude',
             'keys': 'API Keys',
-            'logs': 'Registros de Actividad'
+            'logs': 'Registros de Actividad',
+            'vonage': 'Verificación'
         };
         document.getElementById('pageTitle').textContent = titles[tab] || 'Panel Admin';
 
@@ -671,23 +674,17 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const data = await response.json();
-            
             console.log('📊 Stats data:', data);
 
-            // Actualizar números principales
             document.getElementById('total-searches').textContent = (data.total || 0).toLocaleString();
             document.getElementById('successful').textContent = (data.successful || 0).toLocaleString();
             document.getElementById('failed').textContent = (data.failed || 0).toLocaleString();
             document.getElementById('avg-time').textContent = (data.avg_time || 0) + 'ms';
 
-            // Validar que hay datos de operadores
             if (!data.by_operator || !Array.isArray(data.by_operator) || data.by_operator.length === 0) {
-                console.warn('⚠️ No operator data available');
                 document.getElementById('operatorChart').innerHTML = '<div class="text-center text-slate-400 py-8">Sin datos de búsquedas aún</div>';
                 document.getElementById('operator-stats').innerHTML = '<div class="text-center text-slate-400 py-8">Sin datos disponibles</div>';
                 document.getElementById('operators-table').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Sin datos</td></tr>';
@@ -700,7 +697,6 @@
                 '#f97316', '#6366f1'
             ];
             
-            // Gráfico de operadores mejorado
             const ctx = document.getElementById('operatorChart').getContext('2d');
             if (window.operatorChart && typeof window.operatorChart.destroy === 'function') {
                 window.operatorChart.destroy();
@@ -742,7 +738,6 @@
                 }
             });
 
-            // Top Operadores (tarjetas)
             const operatorStats = document.getElementById('operator-stats');
             operatorStats.innerHTML = data.by_operator.slice(0, 5).map((op, idx) => {
                 const percentage = data.total > 0 ? ((op.total_searches / data.total) * 100).toFixed(1) : 0;
@@ -760,7 +755,6 @@
                 `;
             }).join('');
 
-            // Tabla detallada de operadores
             const table = document.getElementById('operators-table');
             table.innerHTML = data.by_operator.map(op => {
                 const percentage = data.total > 0 ? ((op.total_searches / data.total) * 100).toFixed(1) : 0;
@@ -789,7 +783,6 @@
                 `;
             }).join('');
 
-            // Top números
             if (data.top_numbers && Array.isArray(data.top_numbers) && data.top_numbers.length > 0) {
                 const list = document.getElementById('top-numbers');
                 list.innerHTML = data.top_numbers.map((n, idx) => {
@@ -1078,7 +1071,6 @@
         }).catch(err => {
             alert('Error al copiar: ' + err);
         });
-
     }
 
     async function deleteApiKey(id) {
@@ -1266,372 +1258,290 @@
         }
     }
 
-// ==================== BULK LOOKUP FUNCTIONS (ALTO RENDIMIENTO) ====================
+    // ==================== BULK LOOKUP FUNCTIONS ====================
+    let bulkController = null;
 
-let bulkController = null;
+    async function processBulkLookup() {
+        const fileInput = document.getElementById('bulk-lookup-file');
+        const columnIndex = parseInt(document.getElementById('bulk-column-index').value) - 1;
+        const tableBody = document.getElementById('bulk-results-table');
+        const resultsContainer = document.getElementById('bulk-results');
 
-async function processBulkLookup() {
-    const fileInput = document.getElementById('bulk-lookup-file');
-    const columnIndex = parseInt(document.getElementById('bulk-column-index').value) - 1;
-    const tableBody = document.getElementById('bulk-results-table');
-    const resultsContainer = document.getElementById('bulk-results');
+        if (!fileInput.files[0]) return alert('⚠️ Selecciona un archivo CSV');
 
-    if (!fileInput.files[0]) return alert('⚠️ Selecciona un archivo CSV');
-
-    // Mostrar contenedor y limpiar tabla con un loader
-    resultsContainer.classList.remove('hidden');
-    tableBody.innerHTML = `
-        <tr>
-            <td colspan="5" class="px-6 py-12 text-center">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500/30 border-t-blue-500 mb-4"></div>
-                <div id="bulk-live-status" class="text-slate-300 font-bold">Leyendo archivo...</div>
-                <div class="text-xs text-slate-500 mt-2">Esto puede tardar unos segundos para archivos grandes</div>
-            </td>
-        </tr>`;
-
-    bulkController = new AbortController();
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = async (e) => {
-        try {
-            const lines = e.target.result.split(/\r?\n/).filter(line => line.trim());
-            const allNumbers = [];
-
-            // Limpieza de números
-            for (let line of lines) {
-                const cols = line.split(',');
-                if (cols[columnIndex]) {
-                    const num = cols[columnIndex].replace(/\D/g, '');
-                    if (num.length >= 9) {
-                        const clean = (num.startsWith('34') && num.length > 9) ? num : '34' + num;
-                        if (/^34\d{9}$/.test(clean)) allNumbers.push(clean);
-                    }
-                }
-            }
-
-            const total = allNumbers.length;
-            window.bulkLookupResults = []; 
-            const CHUNK_SIZE = 1500; // Lote optimizado para 150k
-            
-            const chunks = [];
-            for (let i = 0; i < total; i += CHUNK_SIZE) {
-                chunks.push(allNumbers.slice(i, i + CHUNK_SIZE));
-            }
-
-            // Procesamiento en lotes con concurrencia limitada
-            const concurrencyLimit = 2;
-            for (let i = 0; i < chunks.length; i += concurrencyLimit) {
-                if (!bulkController) break;
-
-                const currentBatch = chunks.slice(i, i + concurrencyLimit);
-                const promises = currentBatch.map(chunk => 
-                    fetch('/api/admin/bulk-lookup', {
-                        method: 'POST',
-                        signal: bulkController.signal,
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ numbers: chunk })
-                    }).then(res => res.ok ? res.json() : null)
-                );
-
-                const results = await Promise.all(promises);
-                
-                results.forEach(data => {
-                    if (data && data.results) {
-                        window.bulkLookupResults.push(...data.results);
-                    }
-                });
-
-                // ACTUALIZACIÓN SEGURA DE ESTADÍSTICAS (Tus IDs actuales)
-                const processedSoFar = window.bulkLookupResults.length;
-                const statusLabel = document.getElementById('bulk-live-status');
-                if (statusLabel) statusLabel.innerText = `Procesando: ${processedSoFar.toLocaleString()} / ${total.toLocaleString()}`;
-
-                updateBulkStats(window.bulkLookupResults.filter(r => r.success).length, processedSoFar);
-                
-                // Renderizado ligero (solo los últimos para no congelar la web)
-                renderFinalTable(window.bulkLookupResults, false);
-            }
-
-            renderFinalTable(window.bulkLookupResults, true);
-            if (bulkController) alert(`✅ ¡Listo! ${window.bulkLookupResults.length.toLocaleString()} procesados.`);
-
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                console.error(err);
-                tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Error: ${err.message}</td></tr>`;
-            }
-        } finally {
-            bulkController = null;
-        }
-    };
-
-    reader.readAsText(file);
-}
-
-function updateBulkStats(successCount, totalSoFar) {
-    const s = document.getElementById('bulk-stats-success');
-    const p = document.getElementById('bulk-stats-processed');
-    const f = document.getElementById('bulk-stats-failed');
-    
-    // Verificamos que existan antes de escribir para evitar el error 'null'
-    if(s) s.textContent = successCount.toLocaleString();
-    if(p) p.textContent = totalSoFar.toLocaleString();
-    if(f) f.textContent = (totalSoFar - successCount).toLocaleString();
-}
-
-function renderFinalTable(results, isFinal) {
-    const tableBody = document.getElementById('bulk-results-table');
-    if (!tableBody || !results.length) return;
-
-    // Solo mostramos los últimos 30 resultados para mantener la fluidez
-    const lastItems = results.slice(-30); 
-
-    const html = lastItems.map(r => {
-        const fullNumber = r.number || r.phone_number || '';
-        const displayNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
-
-        return `
-            <tr class="border-b border-slate-700/50 hover:bg-slate-800/50 transition">
-                <td class="px-6 py-3 font-mono text-blue-300 text-xs">${displayNumber}</td>
-                <td class="px-6 py-3">
-                    <span class="font-bold text-slate-200">${r.operator || 'Desconocido'}</span>
-                </td>
-                <td class="px-6 py-3 text-slate-500 text-xs">${r.type || 'MOBILE'}</td>
-                <td class="px-6 py-3">
-                    <span class="px-2 py-0.5 rounded-full text-[10px] ${r.ported ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-slate-700/30 text-slate-500'}">
-                        ${r.ported ? 'PORTADO' : 'ORIGINAL'}
-                    </span>
-                </td>
-                <td class="px-6 py-3 text-right">
-                    <span class="${r.success ? 'text-green-500' : 'text-red-500'} font-bold">
-                        ${r.success ? '✓' : '✗'}
-                    </span>
+        resultsContainer.classList.remove('hidden');
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500/30 border-t-blue-500 mb-4"></div>
+                    <div id="bulk-live-status" class="text-slate-300 font-bold">Leyendo archivo...</div>
+                    <div class="text-xs text-slate-500 mt-2">Esto puede tardar unos segundos para archivos grandes</div>
                 </td>
             </tr>`;
-    }).join('');
 
-    tableBody.innerHTML = html + (results.length > 30 ? 
-        `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500 text-xs italic bg-slate-900/30">
-            ... mostrando últimos 30 de ${results.length.toLocaleString()} (Descarga el CSV para ver todos)
-        </td></tr>` : '');
-}
+        bulkController = new AbortController();
+        const file = fileInput.files[0];
+        const reader = new FileReader();
 
-function exportBulkResults() {
-    if (!window.bulkLookupResults?.length) return alert('No hay datos para exportar');
+        reader.onload = async (e) => {
+            try {
+                const lines = e.target.result.split(/\r?\n/).filter(line => line.trim());
+                const allNumbers = [];
 
-    const SEPARATOR = ","; 
-    
-    const headers = ['Numeros', 'Operador', 'Tipo', 'Portado', 'Estado'];
-    let csvContent = `sep=${SEPARATOR}\n` + headers.join(SEPARATOR) + '\n';
+                for (let line of lines) {
+                    const cols = line.split(',');
+                    if (cols[columnIndex]) {
+                        const num = cols[columnIndex].replace(/\D/g, '');
+                        if (num.length >= 9) {
+                            const clean = (num.startsWith('34') && num.length > 9) ? num : '34' + num;
+                            if (/^34\d{9}$/.test(clean)) allNumbers.push(clean);
+                        }
+                    }
+                }
 
-    const rows = window.bulkLookupResults.map(r => {
-        const fullNumber = r.number || r.phone_number || '';
-        const cleanNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
+                const total = allNumbers.length;
+                window.bulkLookupResults = []; 
+                const CHUNK_SIZE = 1500;
+                
+                const chunks = [];
+                for (let i = 0; i < total; i += CHUNK_SIZE) {
+                    chunks.push(allNumbers.slice(i, i + CHUNK_SIZE));
+                }
+
+                const concurrencyLimit = 2;
+                for (let i = 0; i < chunks.length; i += concurrencyLimit) {
+                    if (!bulkController) break;
+
+                    const currentBatch = chunks.slice(i, i + concurrencyLimit);
+                    const promises = currentBatch.map(chunk => 
+                        fetch('/api/admin/bulk-lookup', {
+                            method: 'POST',
+                            signal: bulkController.signal,
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ numbers: chunk })
+                        }).then(res => res.ok ? res.json() : null)
+                    );
+
+                    const results = await Promise.all(promises);
+                    
+                    results.forEach(data => {
+                        if (data && data.results) {
+                            window.bulkLookupResults.push(...data.results);
+                        }
+                    });
+
+                    const processedSoFar = window.bulkLookupResults.length;
+                    const statusLabel = document.getElementById('bulk-live-status');
+                    if (statusLabel) statusLabel.innerText = `Procesando: ${processedSoFar.toLocaleString()} / ${total.toLocaleString()}`;
+
+                    updateBulkStats(window.bulkLookupResults.filter(r => r.success).length, processedSoFar);
+                    renderFinalTable(window.bulkLookupResults, false);
+                }
+
+                renderFinalTable(window.bulkLookupResults, true);
+                if (bulkController) alert(`✅ ¡Listo! ${window.bulkLookupResults.length.toLocaleString()} procesados.`);
+
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Error: ${err.message}</td></tr>`;
+                }
+            } finally {
+                bulkController = null;
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    function updateBulkStats(successCount, totalSoFar) {
+        const s = document.getElementById('bulk-stats-success');
+        const p = document.getElementById('bulk-stats-processed');
+        const f = document.getElementById('bulk-stats-failed');
         
-        return [
-            `="${cleanNumber}"`, 
-            `"${r.operator || 'Desconocido'}"`,
-            r.type || 'MOBILE',
-            r.ported ? 'Si' : 'No',
-            r.success ? 'OK' : 'Error'
-        ].join(SEPARATOR);
-    });
+        if(s) s.textContent = successCount.toLocaleString();
+        if(p) p.textContent = totalSoFar.toLocaleString();
+        if(f) f.textContent = (totalSoFar - successCount).toLocaleString();
+    }
 
-    csvContent += rows.join('\n');
+    function renderFinalTable(results, isFinal) {
+        const tableBody = document.getElementById('bulk-results-table');
+        if (!tableBody || !results.length) return;
 
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Reporte_Final_${new Date().getTime()}.csv`;
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-}
-    //
-//    async function verifyWithVonage() {
-//        const number = document.getElementById('vonage-number').value.trim();
-//        
-//        if (!number) {
-//            alert('Ingresa un número');
-//            return;
-//        }
+        const lastItems = results.slice(-30); 
 
-//        if (!/^34\d{9}$/.test(number)) {
-//            alert('Formato inválido. Usa: 34XXXXXXXXX');
-//            return;
-//        }
+        const html = lastItems.map(r => {
+            const fullNumber = r.number || r.phone_number || '';
+            const displayNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
 
-//        try {
-//            const token = localStorage.getItem('adminToken');
-//            const response = await fetch(`/api/vonage/verify/${number}`, {
-//                headers: { 'Authorization': `Bearer ${token}` }
-//            });
-//            const data = await response.json();
-//
-//            if (data.success) {
-//                document.getElementById('vonage-intl').textContent = data.international_format_number || number;
-//                document.getElementById('vonage-carrier').textContent = data.carrier_name || 'Desconocido';
-//                document.getElementById('vonage-type').textContent = data.line_type || 'Desconocido';
-//                document.getElementById('vonage-country').textContent = data.country || 'España';
-//                document.getElementById('vonage-result').classList.remove('hidden');
-//            } else {
-//                alert('Error verificando número con Vonage');
-//            }
-//        } catch (err) {
-//            alert('Error: ' + err.message);
-//        }
-//    }
+            return `
+                <tr class="border-b border-slate-700/50 hover:bg-slate-800/50 transition">
+                    <td class="px-6 py-3 font-mono text-blue-300 text-xs">${displayNumber}</td>
+                    <td class="px-6 py-3">
+                        <span class="font-bold text-slate-200">${r.operator || 'Desconocido'}</span>
+                    </td>
+                    <td class="px-6 py-3 text-slate-500 text-xs">${r.type || 'MOBILE'}</td>
+                    <td class="px-6 py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] ${r.ported ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-slate-700/30 text-slate-500'}">
+                            ${r.ported ? 'PORTADO' : 'ORIGINAL'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3 text-right">
+                        <span class="${r.success ? 'text-green-500' : 'text-red-500'} font-bold">
+                            ${r.success ? '✓' : '✗'}
+                        </span>
+                    </td>
+                </tr>`;
+        }).join('');
 
-//    async function compareWithVonage() {
-//        const number = document.getElementById('compare-number').value.trim();
-//        const operator = document.getElementById('compare-operator').value.trim();
+        tableBody.innerHTML = html + (results.length > 30 ? 
+            `<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500 text-xs italic bg-slate-900/30">
+                ... mostrando últimos 30 de ${results.length.toLocaleString()} (Descarga el CSV para ver todos)
+            </td></tr>` : '');
+    }
+
+    function exportBulkResults() {
+        if (!window.bulkLookupResults?.length) return alert('No hay datos para exportar');
+
+        const SEPARATOR = ","; 
         
-//        if (!number || !operator) {
-//            alert('Completa ambos campos');
-//            return;
-//        }
+        const headers = ['Numeros', 'Operador', 'Tipo', 'Portado', 'Estado'];
+        let csvContent = `sep=${SEPARATOR}\n` + headers.join(SEPARATOR) + '\n';
 
-//        if (!/^34\d{9}$/.test(number)) {
-//            alert('Formato inválido. Usa: 34XXXXXXXXX');
-//            return;
-//        }
+        const rows = window.bulkLookupResults.map(r => {
+            const fullNumber = r.number || r.phone_number || '';
+            const cleanNumber = fullNumber.startsWith('34') ? fullNumber.substring(2) : fullNumber;
+            
+            return [
+                `="${cleanNumber}"`, 
+                `"${r.operator || 'Desconocido'}"`,
+                r.type || 'MOBILE',
+                r.ported ? 'Si' : 'No',
+                r.success ? 'OK' : 'Error'
+            ].join(SEPARATOR);
+        });
 
-//        try {
-//            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
-//            const data = await response.json();
+        csvContent += rows.join('\n');
 
-//            if (data.error) {
-//                alert('Error: ' + data.error);
-//                document.getElementById('compare-result').classList.add('hidden');
-//                return;
-//            }
-
-//            if (!data.compared) {
-//                alert('No se pudo realizar la comparación: ' + data.vonageError);
-//                return;
-//            }
-
-            // Mostrar resultados
-//            document.getElementById('compare-bd').textContent = operator;
-//            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
-//            document.getElementById('compare-status').textContent = data.match ? 
-//                '✅ Coinciden' : '⚠️ Discrepancia detectada';
-
-            // Color según resultado
-//            if (!data.match) {
-//                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
-//                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
-//                document.getElementById('compare-recommendation').classList.remove('hidden');
-//            } else {
-//                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
-//                document.getElementById('compare-recommendation').classList.add('hidden');
-//            }
-
-//            document.getElementById('compare-result').classList.remove('hidden');
-//        } catch (err) {
-//            alert('Error: ' + err.message);
-//        }
-//    }
-
-//    function logout() {
-//        localStorage.removeItem('adminToken');
-//        localStorage.removeItem('rememberAdmin');
-//        window.location.href = '/admin-login.html';
-//    }
-
-    // Vonage Functions
-//    async function verifyWithVonage() {
-//        const number = document.getElementById('vonage-number').value.trim();
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
         
-//        if (!number) {
-//            alert('Ingresa un número');
-//            return;
-//        }
-
-//        if (!/^34\d{9}$/.test(number)) {
-//            alert('Formato inválido. Usa: 34XXXXXXXXX');
-//            return;
-//        }
-
-//        try {
-//            const response = await fetch(`/api/vonage/verify/${number}`);
-//            const data = await response.json();
-
-//            if (data.error) {
-//                alert('Error: ' + data.error);
-//               document.getElementById('vonage-result').classList.add('hidden');
-//                return;
-//            }
-
-            // Mostrar resultados
-//           document.getElementById('vonage-intl').textContent = data.internationalFormat || '-';
-//            document.getElementById('vonage-carrier').textContent = data.carrierName || 'Desconocido';
-//            document.getElementById('vonage-type').textContent = data.numberType || '-';
-//            document.getElementById('vonage-country').textContent = data.countryName || '-';
-//            document.getElementById('vonage-result').classList.remove('hidden');
-//        } catch (err) {
-//            alert('Error conectando con Vonage: ' + err.message);
-//        }
-//    }
-
-//    async function compareWithVonage() {
-//        const number = document.getElementById('compare-number').value.trim();
-//        const operator = document.getElementById('compare-operator').value.trim();
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Reporte_Final_${new Date().getTime()}.csv`;
         
-//        if (!number || !operator) {
-//            alert('Completa ambos campos');
-//            return;
-//        }
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+        
+    // --- Funciones de Veriphone CORREGIDAS ---
+    async function verifyWithVeriphone() {
+        const numberInput = document.getElementById('vonage-number');
+        const resultDiv = document.getElementById('vonage-result');
+        const number = numberInput.value.trim();
+        
+        if (!number) {
+            alert('✨ Por favor, ingresa un número primero');
+            return;
+        }
 
-//        if (!/^34\d{9}$/.test(number)) {
-//            alert('Formato inválido. Usa: 34XXXXXXXXX');
-//            return;
-//        }
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`/api/admin/vonage/verify?number=${encodeURIComponent(number)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || `Error ${response.status}`);
+            }
+            
+            const data = await response.json();
 
-//        try {
-//            const response = await fetch(`/api/vonage/compare/${number}/${encodeURIComponent(operator)}`);
-//            const data = await response.json();
+            if (data.success) {
+                const statusText = data.valid ? '✅ Válido' : '❌ Inválido';
+                
+                document.getElementById('vonage-intl').textContent = `${data.internationalFormat} (${statusText})`;
+                document.getElementById('vonage-carrier').textContent = data.carrierName || 'Desconocido';
+                document.getElementById('vonage-type').textContent = data.numberType || 'N/A';
+                document.getElementById('vonage-country').textContent = data.countryName || 'N/A';
+                
+                resultDiv.classList.remove('hidden');
+            } else {
+                alert('💔 Error: ' + (data.error || 'No se pudo verificar'));
+            }
+        } catch (err) {
+            console.error('Error en Veriphone:', err);
+            alert('🚀 Error: ' + err.message);
+        }
+    }
 
-//            if (data.error) {
-//                alert('Error: ' + data.error);
-//                document.getElementById('compare-result').classList.add('hidden');
-//                return;
-//            }
+    async function compareWithVeriphone() {
+        const number = document.getElementById('compare-number').value.trim();
+        const operator = document.getElementById('compare-operator').value.trim();
+        const resultDiv = document.getElementById('compare-result');
+        
+        if (!number || !operator) {
+            alert('🎀 Completa ambos campos para comparar');
+            return;
+        }
 
-//            if (!data.compared) {
-//                alert('No se pudo realizar la comparación: ' + data.vonageError);
-//                return;
-//            }
-//
-//            document.getElementById('compare-bd').textContent = operator;
-//            document.getElementById('compare-vonage').textContent = data.vonageInfo.carrierName || 'Desconocido';
-//            document.getElementById('compare-status').textContent = data.match ? 
-//                '✅ Coinciden' : '⚠️ Discrepancia detectada';
-//
-//            if (!data.match) {
-//                document.getElementById('compare-status').className = 'text-orange-400 font-semibold';
-//                document.getElementById('rec-text').textContent = data.recommendation || 'Considera actualizar los datos';
-//                document.getElementById('compare-recommendation').classList.remove('hidden');
-//            } else {
-//                document.getElementById('compare-status').className = 'text-green-400 font-semibold';
-//                document.getElementById('compare-recommendation').classList.add('hidden');
-//            }
-//
-//            document.getElementById('compare-result').classList.remove('hidden');
-//        } catch (err) {
-//           alert('Error: ' + err.message);
-//        }
-//    }
-//
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch('/api/admin/vonage/compare', {
 
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ number, operator })
+            });
+            
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || `Error ${response.status}`);
+            }
+            
+            const data = await response.json();
+
+            if (data.error || !data.compared) {
+                alert('🚫 Error: ' + (data.error || 'No se pudo comparar'));
+                resultDiv.classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('compare-bd').textContent = operator;
+            document.getElementById('compare-vonage').textContent = data.info.carrierName || 'Desconocido';
+            
+            const statusElem = document.getElementById('compare-status');
+            statusElem.textContent = data.match ? '✅ Los operadores coinciden' : '⚠️ Discrepancia detectada';
+
+            if (!data.match) {
+                statusElem.className = 'text-pink-400 font-semibold';
+                document.getElementById('rec-text').textContent = `Se recomienda actualizar a: ${data.info.carrierName}`;
+                document.getElementById('compare-recommendation').classList.remove('hidden');
+            } else {
+                statusElem.className = 'text-cyan-400 font-semibold';
+                document.getElementById('compare-recommendation').classList.add('hidden');
+            }
+
+            resultDiv.classList.remove('hidden');
+        } catch (err) {
+            alert('☁️ Error: ' + err.message);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('rememberAdmin');
+        window.location.href = '/admin-login.html';
+    }
 </script>
 
 </body>
