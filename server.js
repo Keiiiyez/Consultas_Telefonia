@@ -326,68 +326,97 @@ app.post('/api/admin/bulk-lookup', authenticateAdmin, async (req, res) => {
             return res.status(400).json({ error: 'Array de números requerido' });
         }
 
-        console.log(`[BULK] Procesando ${numbers.length} números...`);
+        console.log(`[BULK] Procesando ${numbers.length} números con Veriphone (ultra-rápido)...`);
+
+        // Normalizar todos los números
+        const cleanNumbers = numbers.map(raw => {
+            let cleaned = raw.replace(/\D/g, '');
+            if (!cleaned.startsWith('34')) cleaned = '34' + cleaned;
+            return cleaned;
+        });
+
+        // 1. Obtener los que ya están en veriphone_cache (válidos por 7 días según tu servicio)
+        const placeholders = cleanNumbers.map(() => '?').join(',');
+        const [cachedRows] = await db.query(
+            `SELECT phone_number, carrier_name, number_type, phone_valid 
+             FROM veriphone_cache 
+             WHERE phone_number IN (${placeholders}) 
+               AND last_checked >= NOW() - INTERVAL 7 DAY`,
+            cleanNumbers
+        );
+
+        // Convertir a mapa para acceso rápido
+        const cacheMap = new Map();
+        for (const row of cachedRows) {
+            cacheMap.set(row.phone_number, {
+                operator: row.carrier_name,
+                type: row.number_type || 'MOBILE',
+                valid: row.phone_valid
+            });
+        }
+
         const results = [];
+        const pendingNumbers = []; // números que no están en caché y necesitan API
 
-        for (const rawNumber of numbers) {
-            try {
-                // Limpiar dígitos y asegurar formato 34XXXXXXXXX
-                let cleaned = rawNumber.replace(/\D/g, '');
-                if (!cleaned.startsWith('34')) {
-                    cleaned = '34' + cleaned;
-                }
-                const intlNumber = '+' + cleaned; // +34600123456
-
-                let operator = 'No encontrado';
-                let type = 'N/A';
-                let success = false;
-
-                // Verificar si Veriphone está habilitado
-                if (veriphoneService.enabled) {
-                    console.log(`[BULK] Consultando Veriphone para ${intlNumber}`);
-                    const verResult = await veriphoneService.verifyNumber(intlNumber);
-                    console.log(`[BULK] Respuesta para ${intlNumber}:`, verResult);
-
-                    if (verResult.success && verResult.carrierName) {
-                        operator = verResult.carrierName;
-                        type = verResult.numberType || 'MOBILE';
-                        success = true;
-
-                        // Guardar en numero_ranges
-                        try {
-                            const phoneInt = BigInt(cleaned.substring(2)); // quitar 34
-                            await db.query(
-                                `INSERT IGNORE INTO numero_ranges 
-                                (range_start, range_end, operator_name, type) 
-                                VALUES (?, ?, ?, ?)`,
-                                [phoneInt, phoneInt, operator, type]
-                            );
-                            console.log(`[BULK] Guardado en DB: ${cleaned} -> ${operator}`);
-                        } catch (insertErr) {
-                            console.warn(`[BULK] No se pudo insertar ${cleaned}:`, insertErr.message);
-                        }
-                    } else {
-                        console.warn(`[BULK] Veriphone falló para ${intlNumber}:`, verResult.error || 'sin datos');
-                    }
-                } else {
-                    console.warn(`[BULK] Veriphone no está habilitado (revisa VERIPHONE_API_KEY).`);
-                    operator = 'API no configurada';
-                }
-
+        for (const num of cleanNumbers) {
+            if (cacheMap.has(num)) {
+                const c = cacheMap.get(num);
                 results.push({
-                    number: cleaned,
-                    operator,
-                    success,
-                    type,
+                    number: num,
+                    operator: c.operator,
+                    success: c.valid,
+                    type: c.type,
                     ported: false
                 });
-            } catch (err) {
-                console.error(`[BULK] Error con número ${rawNumber}:`, err.message);
-                results.push({ number: rawNumber, operator: 'Error', success: false });
+            } else {
+                pendingNumbers.push(num);
             }
         }
 
-        console.log(`[BULK] Finalizado. Total procesados: ${results.length}`);
+        console.log(`[BULK] Caché local: ${cacheMap.size} encontrados, ${pendingNumbers.length} pendientes de API`);
+
+        // 2. Procesar los pendientes con concurrencia alta (usa 25 para plan enterprise)
+        const CONCURRENCY = 25;
+
+        async function processSingle(num) {
+            const intlNumber = '+' + num;
+            if (!veriphoneService.enabled) {
+                return { number: num, operator: 'API no configurada', success: false, type: 'N/A', ported: false };
+            }
+            try {
+                const verResult = await veriphoneService.verifyNumber(intlNumber);
+                if (verResult.success && verResult.carrierName) {
+                    return {
+                        number: num,
+                        operator: verResult.carrierName,
+                        success: true,
+                        type: verResult.numberType || 'MOBILE',
+                        ported: false
+                    };
+                } else {
+                    return { number: num, operator: 'No encontrado', success: false, type: 'N/A', ported: false };
+                }
+            } catch (err) {
+                console.error(`[BULK] Error con ${num}:`, err.message);
+                return { number: num, operator: 'Error', success: false, type: 'N/A', ported: false };
+            }
+        }
+
+        for (let i = 0; i < pendingNumbers.length; i += CONCURRENCY) {
+            const batch = pendingNumbers.slice(i, i + CONCURRENCY);
+            const batchPromises = batch.map(n => processSingle(n));
+            const batchResults = await Promise.allSettled(batchPromises);
+
+            for (const res of batchResults) {
+                if (res.status === 'fulfilled') {
+                    results.push(res.value);
+                } else {
+                    console.error('[BULK] Promise rechazada:', res.reason);
+                }
+            }
+        }
+
+        console.log(`[BULK] Finalizado. Éxitos: ${results.filter(r => r.success).length}, Fallos: ${results.filter(r => !r.success).length}`);
         res.json({ success: true, results });
 
     } catch (err) {
